@@ -10,57 +10,51 @@ from RedLightGreenLight.Resources.Sound.SoundManager import MusicManager
 from RedLightGreenLight.Resources.Sound.SoundPaths import SoundPaths
 from RedLightGreenLight.States.StateKeywords import StateKeywords as skw
 from RedLightGreenLight.SettingsSubMenu.SettingsModel import SettingsModel
+from RedLightGreenLight.States.StateResult import StateResult
 
 
 class MenuController:
     """Controller for the menu."""
-    def __init__(self, settings_model:SettingsModel, music_manager:MusicManager,model: MenuModel, view: MenuView, state_events:Queue):
+    def __init__(self, settings_model:SettingsModel, music_manager:MusicManager,model: MenuModel, view: MenuView):
         self._settings = settings_model
         self._model = model
         self._view = view
-        self._state_events = state_events # Callback function to exit the menu
         self._music_manager = music_manager
 
-    def handle_events(self,events:pygame.event):
-        """Handles all events for the menu."""
-        for event in events:
-            self._view.get_manager().process_events(event)
-            if event.type == pygame.KEYDOWN:
-                self._handle_keyboard_events(event)
-            if event.type == pygame_gui.UI_BUTTON_PRESSED:
-                self._handle_button_events(event)
 
-    def update(self,delta_time):
+    def update(self,delta_time)->StateResult:
+        result = StateResult()
         self._view.show(delta_time)
         if self._settings.is_music():
             self._music_manager.play(SoundPaths.MENU_MUSIC)
+        self._handle_events(result)
+        return result
 
+    def _handle_events(self,result:StateResult):
+        """Handles all events for the menu."""
+        for event in pygame.event.get():
+            self._view.get_manager().process_events(event)
+            if event.type == pygame.KEYDOWN:
+                result.add_key(self._handle_keyboard_events(event))
+            if event.type == pygame_gui.UI_BUTTON_PRESSED:
+                self._handle_button_events(event, result)
 
-    def _handle_keyboard_events(self, event):
+    def _handle_keyboard_events(self, event)->str|None:
         """Handles a single keyboard event."""
         if event.key == pygame.K_ESCAPE:
-            self._on_esc_pressed()
+            return skw.MENU_ESC
+        return None
 
-    def _handle_button_events(self, event):
+    def _handle_button_events(self, event:pygame.event,result:StateResult):
         """Handles a single button event."""
         if event.ui_element == self._view.get_ok_button():
-            self._on_ok_pressed()
+            result.add_key(skw.MENU_ESC)
         elif event.ui_element == self._view.get_quit_button():
-            self._on_quit_pressed()
+            result.set_quit(True)
         elif event.ui_element == self._view.get_settings_button():
-            self._on_settings_pressed()
+            result.add_key(skw.MENU_SETTINGS)
 
-    def _on_ok_pressed(self):
-        self._state_events.put(skw.MENU_OK)
 
-    def _on_esc_pressed(self):
-        self._state_events.put(skw.MENU_ESC)
-
-    def _on_quit_pressed(self):
-        self._state_events.put(skw.GAME_QUIT)
-
-    def _on_settings_pressed(self):
-        self._state_events.put(skw.MENU_SETTINGS)
 
     def update_settings(self):
         pass

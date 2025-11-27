@@ -67,10 +67,8 @@ class GameModel:
 
     def evaluate_game_over(self,dt):
         """Call this every frame"""
-        print("Game over: ", self._game_over)
         if self._game_over:
             elapsed = dt - self._game_over_start_time
-            print("Elapsed time: ", elapsed, " | Duration: ", self._game_over_duration)
             if elapsed >= self._game_over_duration:
                 self.end_game_over()
 
@@ -100,7 +98,6 @@ class GameModel:
         self._switch_time = switch_time
         self._warning_time = warning_time
         self.update_time(0)
-        print(f"Switch time: {self._switch_time} | Warning time: {self._warning_time} | Time passed: {self._time_passed} | Current gamephase: {self._current_gamephase}")
 
     def update_time(self, delta_time: float):
         if not self._is_paused:

@@ -18,8 +18,9 @@ class SettingsModel:
 
     def add_observer(self, observer:SettingsObserver):
         if isinstance(observer, SettingsObserver):
-            self._settings_observers.append(observer)
-            print(f"Observer added: {observer}")
+            if observer not in self._settings_observers:
+                self._settings_observers.append(observer)
+                print(f"Observer added: {observer}")
 
     def remove_observer(self, observer):
         self._settings_observers.remove(observer)
