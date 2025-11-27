@@ -22,8 +22,16 @@ class GameApp:
         self._menu_state = MenuState(screen,settings_model,music_manager,self._state_events)
         self._game_state = GameState(screen,settings_model,music_manager,self._state_events)
         self._settings_state = SettingsState(screen,settings_model,music_manager,self._state_events)
+
+        settings_model.add_observer(self._menu_state)
+        settings_model.add_observer(self._game_state)
+
+
         self.change_state(self._menu_state)
         self._clock = pygame.time.Clock()
+
+
+
 
 
     def change_state(self,new_state):

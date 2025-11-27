@@ -61,3 +61,7 @@ class MenuController:
 
     def _on_settings_pressed(self):
         self._state_events.put(skw.MENU_SETTINGS)
+
+    def update_settings(self):
+        pass
+    #TODO: implement update_settings method

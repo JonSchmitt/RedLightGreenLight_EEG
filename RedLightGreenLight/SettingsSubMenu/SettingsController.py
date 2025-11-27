@@ -64,7 +64,7 @@ class SettingsController:
                 self._music_manager.stop()
 
     def _on_ok_pressed(self):
-        self._update_settings()
+        self._update_settings_in_model()
         self._state_events.put(skw.SETTINGS_OK)
 
     def _on_esc_pressed(self):
@@ -74,21 +74,15 @@ class SettingsController:
         self._state_events.put(skw.SETTINGS_ESC)
         # don't update settings on esc press
 
-    def _update_settings(self):
-        changed = False
+    def _update_settings_in_model(self):
         switch_time_new = int(self._view.get_switch_time_slider().get_value())
         warning_time_new = int(self._view.get_warning_time_slider().get_value())
         music_new = self._view.get_music_checkbox().get_state()
         if switch_time_new != self._settings.get_switch_time():
             self._settings.set_switch_time(switch_time_new)
-            changed = True
         if warning_time_new != self._settings.get_warning_time():
             self._settings.set_warning_time(warning_time_new)
-            changed = True
         if music_new != self._settings.is_music():
             self._settings.set_music(music_new)
-            changed = True
 
-        if changed:
-            self._settings.set_settings_changed(True)
 

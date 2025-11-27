@@ -22,41 +22,45 @@ class GameController:
 
 
     def update(self,delta_time:float):
-        self._view.show(delta_time)
+        time_stamp = pygame.time.get_ticks()/1000
         self._model.update_time(delta_time)
-        self._check_movement()
+        self._model.evaluate_game_over(time_stamp)
+        self._view.show(delta_time,time_stamp)
+        self._check_movement(time_stamp)
+        self._model.move_entities()
         self._update_music()
 
 
-    def _check_movement(self):
+    def _check_movement(self,time_stamp):
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_SPACE]:
-            if not self._model.is_pause():
-                self._model.set_player_moving(True)
+            if not self._model.is_pause() and not self._model.is_game_over():
                 if not self._model.is_red_light():
-                    self._model.move_player(1, 0)
+                    self._model.set_player_moving((1, 0))
                 else:
-                    self._view.show_game_over()
-                    self._model.restart_game()
+                    self._on_game_over(time_stamp)
+            else:
+                self._model.set_player_moving((0, 0))
+
         else:
-            self._model.set_player_moving(False)
+            self._model.set_player_moving((0, 0))
 
     def _update_music(self):
         if self._settings.is_music():
-            if self._model.get_remaining_in_phase_time() < 1:
-                self._music_manager.fade_out(1)
-            if self._model.get_current_gamephase() == "GreenLight":
-                self._music_manager.play(SoundPaths.GREEN_LIGHT)
-            elif self._model.get_current_gamephase() == "RedLight":
-                self._music_manager.play(SoundPaths.RED_LIGHT)
+            if not self._model.is_game_over():
+                if self._model.get_current_gamephase() == "GreenLight":
+                    self._music_manager.play(SoundPaths.GREEN_LIGHT)
+                elif self._model.get_current_gamephase() == "RedLight":
+                    self._music_manager.play(SoundPaths.RED_LIGHT)
+
+                if self._model.get_remaining_in_phase_time() < 1:
+                    self._music_manager.fade_out(1)
 
 
     def _handle_keyboard_press_event(self, event):
         if event.key == pygame.K_ESCAPE:
             self._state_events.put(skw.GAME_ESC)
-
-
 
 
     def handle_events(self,events:pygame.event):
@@ -65,7 +69,15 @@ class GameController:
                 self._handle_keyboard_press_event(event)
 
     def update_settings(self):
-        if self._settings.is_settings_changed():
-            self._model.update_settings(self._settings.get_switch_time(), self._settings.get_warning_time())
+        self._model.update_settings(self._settings.get_switch_time(), self._settings.get_warning_time())
             # update the game settings with the current model settings
+
+    def _on_game_over(self,time_stamp):
+        self._music_manager.stop()
+        self._music_manager.play(SoundPaths.GAME_OVER, False)
+        self._model.start_game_over(time_stamp)
+
+
+
+
 
