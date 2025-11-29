@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-from RedLightGreenLight.Menu.MenuModel import MenuModel
+from RedLightGreenLight.States.Menu.MenuModel import MenuModel
 import pygame_gui
 import pygame
 
-from RedLightGreenLight.Resources.Sound.SoundPaths import SoundPaths
-from RedLightGreenLight.SettingsSubMenu.SettingsModel import SettingsModel
+from RedLightGreenLight.States.SettingsSubMenu.SettingsModel import SettingsModel
 from RedLightGreenLight.UIElements.VBox import VBox
 from RedLightGreenLight.UIUtil.UIManager import UIManager
 
@@ -20,10 +19,11 @@ class MenuView:
 
         self._manager = UIManager(self._screen)
 
+
         # create vBox:
-        vBox_height = int(250 * self._settings.get_ui_scaling())
-        vBox_width = int(250 * self._settings.get_ui_scaling())
-        vbox = VBox(pygame.Rect(0, 0, vBox_width, vBox_height), self._manager, spacing=10,anchors={'centerx': 'centerx', 'centery': 'centery'})
+        vBox_height = int(50 * self._settings.get_ui_scaling())
+        vBox_width = int(50 * self._settings.get_ui_scaling())
+        vbox = VBox(pygame.Rect(0, 0, vBox_width, vBox_height), self._manager, spacing=20,anchors={'centerx': 'centerx', 'centery': 'centery'})
 
         # create buttons
         button_width = int(200 * self._settings.get_ui_scaling())
@@ -37,7 +37,8 @@ class MenuView:
         vbox.add_element(self._settings_button)
         vbox.add_element(self._quit_button)
 
-
+    def enter(self,screen:pygame.Surface)->None:
+        self._screen.blit(screen, (0, 0))
 
     def get_manager(self)->pygame_gui.UIManager:
         return self._manager
@@ -54,19 +55,11 @@ class MenuView:
         return self._settings_button
 
     def show(self,time_delta)->None:
-        self._ok_button.show()
-        self._settings_button.show()
-        self._quit_button.show()
         pygame.display.set_caption('Menu')
-        # self._screen.fill((150, 0, 0))
         self._manager.update(time_delta)
         self._manager.draw_ui(self._screen)
         pygame.display.update()
 
-    def hide(self)->None:
-        self._ok_button.hide()
-        self._settings_button.hide()
-        self._quit_button.hide()
 
 
 

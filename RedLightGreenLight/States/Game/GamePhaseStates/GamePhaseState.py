@@ -2,25 +2,18 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Optional
 
-import pygame
+from RedLightGreenLight.States.Game.GameContext import GameContext
 
 
-class State(ABC):
+class GamePhaseState(ABC):
     """
-    Basisklasse für alle States im Moore-Automaten.
-    Jeder State entscheidet autonom über Zustandsübergänge.
+    Abstract Base Class for all GamePhases
     """
-
-
     @abstractmethod
-    def update(self,delta_time:float) -> Optional[State]:
-        """
-        Called upon updating the state.
-        """
+    def update(self, delta_time: float, context: GameContext) -> Optional[GamePhaseState]:
         pass
 
-
-    def enter(self,screen:pygame.Surface = None) ->None:
+    def enter(self, context: GameContext) ->None:
         """
         Called upon entering the state.
         Prints Entry to console
@@ -28,7 +21,7 @@ class State(ABC):
         self.print_enter()
 
 
-    def exit(self) -> None:
+    def exit(self, context: GameContext) -> None:
         """
         Called upon exiting the state.
         Prints Exit to console

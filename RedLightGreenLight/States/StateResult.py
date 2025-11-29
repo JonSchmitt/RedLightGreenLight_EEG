@@ -2,6 +2,7 @@ class StateResult:
     def __init__(self):
         self._quit = False
         self._keys = []
+        self._next_state = None
         self._other = []
 
     def set_quit(self,value:bool):
@@ -21,3 +22,9 @@ class StateResult:
 
     def get_other(self):
         return self._other
+
+    def set_next_state(self, state):
+        self._next_state = state
+
+    def get_next_state(self):
+        return self._next_state

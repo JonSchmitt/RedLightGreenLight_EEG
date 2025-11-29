@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from RedLightGreenLight.States.SettingsObserver import SettingsObserver
+from RedLightGreenLight.States.SettingsSubMenu.SettingsObserver import SettingsObserver
 
 
 class SettingsModel:
@@ -9,12 +9,14 @@ class SettingsModel:
 
         # Default settings
         self._fullscreen = False
-        self._window_width = 1600
-        self._window_height = 800
+        self._window_width = 1900
+        self._window_height = 1000
         self._music = True
         self._warning_time = 5
         self._switch_time = 10
         self._ui_scaling = 1.5
+        self._game_over_duration = 5.0
+        self._second_player = False
 
     def add_observer(self, observer:SettingsObserver):
         if isinstance(observer, SettingsObserver):
@@ -77,6 +79,20 @@ class SettingsModel:
 
     def set_ui_scaling(self, ui_scaling:int):
         self._ui_scaling = ui_scaling
+        self.notify_observers()
+
+    def get_game_over_duration(self):
+        return self._game_over_duration
+
+    def set_game_over_duration(self, game_over_duration:float):
+        self._game_over_duration = game_over_duration
+        self.notify_observers()
+
+    def is_second_player(self):
+        return self._second_player
+
+    def set_second_player(self, second_player:bool):
+        self._second_player = second_player
         self.notify_observers()
 
 
