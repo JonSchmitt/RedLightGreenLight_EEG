@@ -47,6 +47,8 @@ class AnimatedObject(pygame.sprite.Sprite):
             print(f"Spritesheet nicht gefunden: {spritesheet_path}")
             return
 
+        self._visible = True
+
         self._loop = loop
         self._frames = []
 

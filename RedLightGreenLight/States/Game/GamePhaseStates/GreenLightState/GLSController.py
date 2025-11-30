@@ -27,6 +27,7 @@ class GLSController:
         result = StateResult()
         self._model.update_time_in_phase(delta_time)
         self._view.show(delta_time)
+        self._update_music()
         self._decide_next_state(context, result)
         return result
 

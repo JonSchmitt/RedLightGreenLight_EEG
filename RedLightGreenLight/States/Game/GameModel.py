@@ -19,7 +19,8 @@ class GameModel:
     def load_entities(self):
         self._entities = []
         self._entities.append(Player("Player_1", (100, 720), (200, 500), 1, SpriteSheetStruct.PlayerEntity))
-
+        if self._second_player:
+            self._entities.append(Player("Player_2", (100, 320), (200, 500), 1, SpriteSheetStruct.PlayerEntity))
 
     def update_settings(self, second_player: bool, context:GameContext):
         if second_player is not self._second_player:

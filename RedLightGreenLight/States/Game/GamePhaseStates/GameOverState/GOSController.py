@@ -26,6 +26,7 @@ class GameOverController:
     def update(self, dt: float, context: GameContext) -> StateResult:
         result = StateResult()
         self._view.show(dt)
+        self._update_music()
         if not self._model.is_game_over(dt):
             result.set_next_state(STATE.RESTART_STATE)
         else:
@@ -38,7 +39,7 @@ class GameOverController:
 
     def _update_music(self) -> None:
         # Play this even when music setting is disabled
-        self._music_manager.play(SoundPaths.GAME_OVER,True)
+        self._music_manager.play(SoundPaths.GAME_OVER,False)
 
 
     def update_settings(self):
