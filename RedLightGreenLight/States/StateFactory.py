@@ -4,6 +4,7 @@ class StateFactory:
     _game_state = None
     _menu_state = None
     _settings_state = None
+    _quit_state = None
 
     @staticmethod
     def create_game_state(screen, settings_model, music_manager):
@@ -25,4 +26,11 @@ class StateFactory:
             from RedLightGreenLight.States.SettingsSubMenu.SettingsState import SettingsState
             StateFactory._settings_state = SettingsState(screen, settings_model, music_manager)
         return StateFactory._settings_state
+
+    @staticmethod
+    def create_quit_state():
+        if not StateFactory._quit_state:
+            from RedLightGreenLight.States.QuitState import QuitState
+            StateFactory._quit_state = QuitState()
+        return StateFactory._quit_state
 

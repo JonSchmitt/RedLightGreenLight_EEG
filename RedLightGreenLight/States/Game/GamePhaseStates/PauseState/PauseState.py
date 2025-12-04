@@ -9,8 +9,6 @@ from RedLightGreenLight.States.Game.GamePhaseStates.PauseState.PauseModel import
 from RedLightGreenLight.States.Game.GamePhaseStates.PauseState.PauseView import PauseView
 from RedLightGreenLight.Resources.Sound.SoundManager import MusicManager
 from RedLightGreenLight.States.SettingsSubMenu.SettingsModel import SettingsModel
-from RedLightGreenLight.States.Game.GamePhaseStates.GamePhaseStateFactory import GamePhaseStateFactory
-from RedLightGreenLight.States.Game.GameContext import GameContext
 from RedLightGreenLight.States.SettingsSubMenu.SettingsObserver import SettingsObserver
 
 
@@ -31,20 +29,14 @@ class PauseState(GamePhaseState, SettingsObserver):
 
         self._previous_GamePhaseState = None
 
-    def enter(self,context:GameContext):
-        super().enter(context)
-        self._controller.enter(context)
+    def enter(self, game_model: GameModel):
+        super().enter(game_model)
+        self._controller.enter(game_model)
 
 
-    def update(self, delta_time: float, context:GameContext) -> Optional[GamePhaseState]:
-        result = self._controller.update(delta_time,context)
+    def update(self, delta_time: float, game_model:GameModel) -> Optional[GamePhaseState]:
+        return self._controller.update(delta_time,game_model)
 
-        # Quit Game
-        if result.get_quit():
-            return None
-        # elif ...
-        else:
-            return GamePhaseStateFactory.create_pause_state(self._screen, self._settings_model, self._music_manager)
 
     def update_settings(self):
         self._controller.update_settings()

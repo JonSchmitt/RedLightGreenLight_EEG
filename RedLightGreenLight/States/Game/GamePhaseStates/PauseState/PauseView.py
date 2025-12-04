@@ -8,7 +8,10 @@ from RedLightGreenLight.States.SettingsSubMenu.SettingsModel import SettingsMode
 class PauseView:
     def __init__(self, screen: pygame.Surface, model: PauseModel, settings_model: SettingsModel,
                  music_manager: MusicManager):
-        pass
+        self._screen = screen
 
     def show(self,delta_time, time_stamp):
         pass
+
+    def get_screen(self):
+        return self._screen

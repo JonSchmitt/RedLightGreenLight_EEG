@@ -7,36 +7,28 @@ from RedLightGreenLight.States.SettingsSubMenu import SettingsModel
 from RedLightGreenLight.States.SettingsSubMenu.SettingsView import SettingsView
 from RedLightGreenLight.States.State import State
 from RedLightGreenLight.States.StateFactory import StateFactory
-from RedLightGreenLight.States.StateResultsEnum import KEY,BUT
-
+from RedLightGreenLight.Inputs.KeysEnum import KEY
 
 class SettingsState(State):
     def __init__(self, screen: pygame.Surface, settings_model: SettingsModel,
                  music_manager: MusicManager):
         super().__init__()
-        self._screen = screen
-        self._settings_model = settings_model
-        self._music_manager = music_manager
+        screen = screen
+        settings_model = settings_model
+        music_manager = music_manager
 
-        self._view = SettingsView(settings_model, screen)
-        self._controller = SettingsController(settings_model, music_manager,
-                                              self._view)
+        view = SettingsView(settings_model, screen)
+        self._controller = SettingsController(settings_model, music_manager, view)
 
     def enter(self,screen:pygame.Surface = None):
         super().enter(screen)
         self._controller.enter(screen)
 
-    def update(self,delta_time:float) -> Optional[State]:
+    def update(self,delta_time:float, keys_pressed:list[list[KEY]]) -> Optional[State]:
         """
         Update - call every frame
         """
-        result = self._controller.update(delta_time)
-        if result.get_quit():
-            return None
-        for key in result.get_keys():
-            if key == BUT.OK or key == KEY.ESC:
-                return StateFactory.create_menu_state(self._screen, self._settings_model, self._music_manager)
+        return self._controller.update(delta_time,keys_pressed)
 
-        return StateFactory.create_settings_state(self._screen, self._settings_model, self._music_manager)
 
 

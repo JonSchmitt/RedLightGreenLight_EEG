@@ -42,3 +42,6 @@ class GameOverView:
     def _update_labels(self):
         new_text = f"YOU DIED!\nContinue in: {int(round(self._game_over_model.get_remaining_game_over_time()))}"
         self._game_over_label.set_text(new_text)
+
+    def get_screen(self):
+        return self._screen

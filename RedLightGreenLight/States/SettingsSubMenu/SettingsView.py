@@ -91,6 +91,9 @@ class SettingsView:
     def get_second_player_checkbox(self) -> pygame_gui.elements.UICheckBox:
         return self._second_player_checkbox
 
+    def get_screen(self) -> pygame.Surface:
+        return self._screen
+
     def show(self, time_delta) -> None:
         pygame.display.set_caption('Settings')
         self._manager.update(time_delta)

@@ -7,12 +7,17 @@ import pygame
 
 from RedLightGreenLight.Resources.Sound.SoundManager import MusicManager
 from RedLightGreenLight.Resources.Sound.SoundPaths import SoundPaths
-from RedLightGreenLight.States.StateResultsEnum import KEY, BUT
 from RedLightGreenLight.States.SettingsSubMenu.SettingsModel import SettingsModel
-from RedLightGreenLight.States.StateResult import StateResult
+from RedLightGreenLight.States.State import State
+from RedLightGreenLight.States.StateFactory import StateFactory
+from RedLightGreenLight.Inputs.KeysEnum import KEY
 
 
 class MenuController:
+    _QUIT = "quit"
+    _SETTINGS = "settings"
+    _GAME = "game"
+
     """Controller for the menu."""
     def __init__(self, settings_model:SettingsModel, music_manager:MusicManager,model: MenuModel, view: MenuView):
         self._settings_model = settings_model
@@ -23,40 +28,52 @@ class MenuController:
     def enter(self,screen:pygame.Surface)->None:
         if screen:
             self._view.enter(screen)
+
         self._start_music()
 
-    def update(self,delta_time)->StateResult:
-        result = StateResult()
+    def update(self,delta_time,keys_pressed:list[list[KEY]])->State|None:
         self._view.show(delta_time)
         self._update_music(delta_time)
-        self._handle_events(result)
-        return result
+        next_state = self._decide_next_state(keys_pressed)
+        return next_state
 
-    def _handle_events(self,result:StateResult):
-        """Handles all events for the menu."""
+    def _decide_next_state(self, keys_pressed:list[list[KEY]]):
+        results = self._handle_events(keys_pressed)
+        if self._QUIT in results:
+            return StateFactory.create_quit_state()
+        if self._SETTINGS in results:
+            return StateFactory.create_settings_state(self._view.get_screen(),self._settings_model,self._music_manager)
+        if self._GAME in results:
+            return StateFactory.create_game_state(self._view.get_screen(),self._settings_model,self._music_manager)
+        return StateFactory.create_menu_state(self._view.get_screen(),self._settings_model,self._music_manager)
+
+
+    def _handle_events(self,keys_pressed:list[list[KEY]])->list[str]:
+        results = []
+        self._handle_keyboard_events(results,keys_pressed)
         for event in pygame.event.get():
             self._view.get_manager().process_events(event)
             if event.type == pygame.QUIT:
-                result.set_quit(True)
-            if event.type == pygame.KEYDOWN:
-                result.add_key(self._handle_keyboard_events(event))
-            if event.type == pygame_gui.UI_BUTTON_PRESSED:
-                self._handle_button_events(event, result)
+                results.append(self._QUIT)
+            elif event.type == pygame_gui.UI_BUTTON_PRESSED:
+                self._handle_button_event(event, results)
+        return results
 
-    def _handle_keyboard_events(self, event)->KEY|None:
-        """Handles a single keyboard event."""
-        if event.key == pygame.K_ESCAPE:
-            return KEY.ESC
-        return None
 
-    def _handle_button_events(self, event:pygame.event,result:StateResult):
+    def _handle_keyboard_events(self,results:list[str],keys_pressed:list[list[KEY]])->None:
+        keys_down = keys_pressed[1]
+        if KEY.ESC in keys_down:
+            results.append(self._GAME)
+
+
+    def _handle_button_event(self, event:pygame.event, results:list[str])->None:
         """Handles a single button event."""
         if event.ui_element == self._view.get_ok_button():
-            result.add_key(KEY.ESC)
+            results.append(self._GAME)
         elif event.ui_element == self._view.get_quit_button():
-            result.set_quit(True)
+            results.append(self._QUIT)
         elif event.ui_element == self._view.get_settings_button():
-            result.add_key(BUT.SETTINGS)
+            results.append(self._SETTINGS)
 
     def _start_music(self) -> None:
         if self._settings_model.is_music():
@@ -70,4 +87,4 @@ class MenuController:
 
     def update_settings(self):
         pass
-    #TODO: implement update_settings method
+

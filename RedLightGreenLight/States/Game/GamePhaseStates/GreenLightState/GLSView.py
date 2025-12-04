@@ -20,7 +20,8 @@ class GLSView:
         self._time_label = None
         self._initialize_ui()
 
-
+    def get_screen(self):
+        return self._screen
 
     def show(self, delta_time: float) -> None:
         self._screen.fill((0, 150, 0))

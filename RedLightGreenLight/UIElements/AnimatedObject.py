@@ -101,7 +101,7 @@ class AnimatedObject(pygame.sprite.Sprite):
     def animation_finished(self):
         return not self._loop and self._frame_index == len(self._frames) - 1
 
-    def update(self, dt:float, pos:tuple[int,int]=None):
+    def update(self, dt:float):
         """Animation abspielen, falls geladen"""
         if self._frames:
             self._time += dt

@@ -9,21 +9,21 @@ from RedLightGreenLight.States.Menu.MenuController import MenuController
 from RedLightGreenLight.States.Menu.MenuView import MenuView
 from RedLightGreenLight.States.Menu.MenuModel import MenuModel
 from RedLightGreenLight.States.StateFactory import StateFactory
-from RedLightGreenLight.States.StateResultsEnum import KEY, BUT
+from RedLightGreenLight.Inputs.KeysEnum import KEY
 
 
 class MenuState(State, SettingsObserver):
     def __init__(self, screen: pygame.Surface, settings_model: SettingsModel,
                  music_manager: MusicManager):
         super().__init__()
-        self._screen = screen
-        self._settings_model = settings_model
-        self._music_manager = music_manager
+        screen = screen
+        settings_model = settings_model
+        music_manager = music_manager
 
-        self._model = MenuModel()
-        self._view = MenuView(settings_model, self._model, screen)
+        model = MenuModel()
+        view = MenuView(settings_model, model, screen)
         self._controller = MenuController(settings_model, music_manager,
-                                          self._model, self._view)
+                                          model, view)
 
 
     def enter(self,screen:pygame.Surface = None):
@@ -31,19 +31,12 @@ class MenuState(State, SettingsObserver):
         self._controller.enter(screen)
 
 
-    def update(self,delta_time:float) -> State|None:
+    def update(self,delta_time:float,keys:list[list[KEY]]) -> State|None:
         """
         Update - call every frame
         """
-        result = self._controller.update(delta_time)
-        if result.get_quit():
-            return None
-        for key in result.get_keys():
-            if key == BUT.OK or key == KEY.ESC:
-                return StateFactory.create_game_state(self._screen, self._settings_model, self._music_manager)
-            if key == BUT.SETTINGS:
-                return StateFactory.create_settings_state(self._screen, self._settings_model, self._music_manager)
-        return StateFactory.create_menu_state(self._screen, self._settings_model, self._music_manager)
+        return self._controller.update(delta_time,keys)
+
 
 
     def update_settings(self):

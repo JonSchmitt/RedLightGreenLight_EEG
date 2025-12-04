@@ -43,7 +43,8 @@ class MenuView:
     def get_manager(self)->pygame_gui.UIManager:
         return self._manager
 
-
+    def get_screen(self)->pygame.Surface:
+        return self._screen
 
     def get_ok_button(self)->pygame_gui.elements.UIButton:
         return self._ok_button
@@ -53,6 +54,7 @@ class MenuView:
 
     def get_settings_button(self)->pygame_gui.elements.UIButton:
         return self._settings_button
+
 
     def show(self,time_delta)->None:
         pygame.display.set_caption('Menu')

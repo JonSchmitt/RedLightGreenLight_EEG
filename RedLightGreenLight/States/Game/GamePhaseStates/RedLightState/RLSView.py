@@ -20,6 +20,9 @@ class RLSView:
 
         self._initialize_ui()
 
+    def get_screen(self):
+        return self._screen
+
     def show(self, delta_time: float) -> None:
         self._screen.fill((150, 0, 0))
         self._update_labels()

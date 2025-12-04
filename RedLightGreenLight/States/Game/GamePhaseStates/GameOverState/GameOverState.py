@@ -2,7 +2,7 @@ from typing import Optional
 
 import pygame
 
-from RedLightGreenLight.States.Game.GameContext import GameContext
+from RedLightGreenLight.States.Game.GameModel import GameModel
 from RedLightGreenLight.States.Game.GamePhaseStates.GameOverState.GOSModel import GameOverModel
 from RedLightGreenLight.States.Game.GamePhaseStates.GamePhaseState import GamePhaseState
 from RedLightGreenLight.Resources.Sound.SoundManager import MusicManager
@@ -11,7 +11,6 @@ from RedLightGreenLight.States.Game.GamePhaseStates.GamePhaseStateFactory import
 from RedLightGreenLight.States.Game.GamePhaseStates.GameOverState.GOSController import GameOverController
 from RedLightGreenLight.States.Game.GamePhaseStates.GameOverState.GOSView import GameOverView
 from RedLightGreenLight.States.SettingsSubMenu.SettingsObserver import SettingsObserver
-from RedLightGreenLight.States.StateResultsEnum import STATE
 
 
 class GameOverState(GamePhaseState, SettingsObserver):
@@ -31,22 +30,13 @@ class GameOverState(GamePhaseState, SettingsObserver):
 
 
 
-    def enter(self, context: GameContext) ->None:
-        super().enter(context)
-        self._controller.enter(context)
+    def enter(self, game_model:GameModel) ->None:
+        super().enter(game_model)
+        self._controller.enter(game_model)
 
-    def update(self, delta_time: float, context: GameContext) -> Optional[GamePhaseState]:
-        result = self._controller.update(delta_time, context)
+    def update(self, delta_time: float, game_model:GameModel) -> Optional[GamePhaseState]:
+        return self._controller.update(delta_time, game_model)
 
-        if result.get_quit():
-            return None
-        elif result.get_next_state() == STATE.RESTART_STATE:
-            return GamePhaseStateFactory.create_restart_state(self._screen, self._settings_model, self._music_manager)
-        elif result.get_next_state() == STATE.GAME_OVER_STATE:
-            return GamePhaseStateFactory.create_game_over_state(self._screen, self._settings_model, self._music_manager)
-        else:
-            print(f"Warning: GameOverState: Unknown NextState: {result.get_next_state()}")
-            return GamePhaseStateFactory.create_game_over_state(self._screen, self._settings_model, self._music_manager)
 
     def update_settings(self):
         self._controller.update_settings()

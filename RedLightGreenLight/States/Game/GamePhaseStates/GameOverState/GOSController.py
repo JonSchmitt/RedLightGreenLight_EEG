@@ -1,13 +1,13 @@
-import pygame
-
-from RedLightGreenLight.States.Game.GameContext import GameContext
+from RedLightGreenLight.States.Game.GameModel import GameModel
+from RedLightGreenLight.States.Game.GamePhaseStates import GamePhaseState
 from RedLightGreenLight.States.Game.GamePhaseStates.GameOverState.GOSModel import GameOverModel
 from RedLightGreenLight.States.Game.GamePhaseStates.GameOverState.GOSView import GameOverView
 from RedLightGreenLight.Resources.Sound.SoundManager import MusicManager
 from RedLightGreenLight.Resources.Sound.SoundPaths import SoundPaths
+from RedLightGreenLight.States.Game.GamePhaseStates.GamePhaseStateFactory import GamePhaseStateFactory
+from RedLightGreenLight.States.Game.GamePhaseStates.GamePhasesEnum import GamePhasesEnum
 from RedLightGreenLight.States.StateResult import StateResult
 from RedLightGreenLight.States.SettingsSubMenu.SettingsModel import SettingsModel
-from RedLightGreenLight.States.StateResultsEnum import STATE
 
 
 class GameOverController:
@@ -18,20 +18,18 @@ class GameOverController:
         self._music_manager = music_manager
         self._settings_model = settings_model
 
-    def enter(self, context: GameContext)->None:
-        context.update_from_phase("GameOverState")
+    def enter(self, game_model:GameModel)->None:
+        game_model.update_phase_info(GamePhasesEnum.GOS)
         self._update_music()
         self._model.start_game_over()
 
-    def update(self, dt: float, context: GameContext) -> StateResult:
-        result = StateResult()
+    def update(self, dt: float, game_model:GameModel) -> GamePhaseState:
         self._view.show(dt)
         self._update_music()
         if not self._model.is_game_over(dt):
-            result.set_next_state(STATE.RESTART_STATE)
+            return GamePhaseStateFactory.create_restart_state(self._view.get_screen(), self._settings_model, self._music_manager)
         else:
-            result.set_next_state(STATE.GAME_OVER_STATE)
-        return result
+            return GamePhaseStateFactory.create_game_over_state(self._view.get_screen(), self._settings_model, self._music_manager)
 
 
     def _handle_keyboard_press_event(self, event) -> str|None:

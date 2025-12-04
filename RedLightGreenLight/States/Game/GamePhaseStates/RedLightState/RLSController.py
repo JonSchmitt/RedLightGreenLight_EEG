@@ -1,14 +1,15 @@
 import pygame
 
-from RedLightGreenLight.States.Game.GameContext import GameContext
+from RedLightGreenLight.States.Game.GamePhaseStates.GamePhaseState import GamePhaseState
+from RedLightGreenLight.States.Game.GamePhaseStates.GamePhaseStateFactory import GamePhaseStateFactory
+from RedLightGreenLight.States.Game.GamePhaseStates.GamePhasesEnum import GamePhasesEnum
 from RedLightGreenLight.States.Game.GamePhaseStates.RedLightState.RLSModel import RLSModel
 from RedLightGreenLight.States.Game.GamePhaseStates.RedLightState.RLSView import RLSView
 from RedLightGreenLight.Resources.Sound.SoundManager import MusicManager
 from RedLightGreenLight.Resources.Sound.SoundPaths import SoundPaths
 from RedLightGreenLight.States.StateResult import StateResult
 from RedLightGreenLight.States.SettingsSubMenu.SettingsModel import SettingsModel
-from RedLightGreenLight.States.StateResultsEnum import STATE
-
+from RedLightGreenLight.States.Game.GameModel import GameModel
 
 class RLSController:
     def __init__(self, model: RLSModel, view: RLSView, settings_model: SettingsModel, music_manager: MusicManager):
@@ -17,29 +18,30 @@ class RLSController:
         self._music_manager = music_manager#
         self._settings_model = settings_model
 
-    def enter(self,context:GameContext):
-        context.update_from_phase("RedLightState")
+    def enter(self,game_model:GameModel):
+        game_model.update_phase_info(GamePhasesEnum.RLS)
         self._start_music()
-        self._model.reset_time_in_phase()
 
-    def update(self, delta_time: float,context:GameContext) -> StateResult:
-        result = StateResult()
+
+    def update(self, delta_time: float,game_model:GameModel) -> GamePhaseState:
         self._model.update_time_in_phase(delta_time)
         self._view.show(delta_time)
         self._update_music(delta_time)
-        self._decide_next_state(context, result)
-        return result
+        return self._decide_next_state(game_model,)
 
     def update_settings(self):
         self._model.update_settings(self._settings_model.get_switch_time())
 
-    def _decide_next_state(self, context:GameContext, result):
-        if context.all_players_dead():
-            result.set_next_state(STATE.GAME_OVER_STATE)
+    def _decide_next_state(self, game_model:GameModel)->GamePhaseState:
+        if game_model.get_all_players_dead():
+            self._model.reset_time_in_phase()
+            return GamePhaseStateFactory.create_game_over_state(self._view.get_screen(), self._settings_model, self._music_manager)
         elif self._model.switch_phase():
-            result.set_next_state(STATE.GREEN_LIGHT_STATE)
+            self._model.reset_time_in_phase()
+            return GamePhaseStateFactory.create_green_light_state(self._view.get_screen(), self._settings_model,
+                                                                self._music_manager)
         else:
-            result.set_next_state(STATE.RED_LIGHT_STATE)
+            return GamePhaseStateFactory.create_red_light_state(self._view.get_screen(), self._settings_model, self._music_manager)
 
     def _start_music(self) -> None:
         if self._settings_model.is_music():

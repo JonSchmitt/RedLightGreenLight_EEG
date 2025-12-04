@@ -4,6 +4,8 @@ from typing import Optional
 
 import pygame
 
+from RedLightGreenLight.Inputs.KeysEnum import KEY
+
 
 class State(ABC):
     """
@@ -13,7 +15,7 @@ class State(ABC):
 
 
     @abstractmethod
-    def update(self,delta_time:float) -> Optional[State]:
+    def update(self,delta_time:float,keys:list[list[KEY]]) -> Optional[State]:
         """
         Called upon updating the state.
         """

@@ -41,3 +41,4 @@ class GamePhaseStateFactory:
             from RedLightGreenLight.States.Game.GamePhaseStates.RestartState.RestartState import RestartState
             GamePhaseStateFactory._restart_state = RestartState(screen, settings_model, music_manager)
         return GamePhaseStateFactory._restart_state
+

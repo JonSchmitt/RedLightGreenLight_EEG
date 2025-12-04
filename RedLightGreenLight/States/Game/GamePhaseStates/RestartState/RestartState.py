@@ -2,16 +2,12 @@ from typing import Optional
 
 import pygame
 
-from RedLightGreenLight.States.Game.GameContext import GameContext
 from RedLightGreenLight.States.Game.GameModel import GameModel
-from RedLightGreenLight.States.Game.GamePhaseStates.GameOverState.GOSModel import GameOverModel
 from RedLightGreenLight.States.Game.GamePhaseStates.GamePhaseState import GamePhaseState
 from RedLightGreenLight.Resources.Sound.SoundManager import MusicManager
+from RedLightGreenLight.States.Game.GamePhaseStates.GamePhasesEnum import GamePhasesEnum
 from RedLightGreenLight.States.SettingsSubMenu.SettingsModel import SettingsModel
 from RedLightGreenLight.States.Game.GamePhaseStates.GamePhaseStateFactory import GamePhaseStateFactory
-from RedLightGreenLight.States.Game.GamePhaseStates.GameOverState.GOSController import GameOverController
-from RedLightGreenLight.States.Game.GamePhaseStates.GameOverState.GOSView import GameOverView
-from RedLightGreenLight.States.StateResultsEnum import STATE
 
 
 class RestartState(GamePhaseState):
@@ -27,9 +23,10 @@ class RestartState(GamePhaseState):
 
 
 
-    def enter(self, context: GameContext) ->None:
-        super().enter(context)
+    def enter(self, game_model: GameModel) ->None:
+        super().enter(game_model)
+        game_model.update_phase_info(GamePhasesEnum.RES)
 
-    def update(self, delta_time: float, context: GameContext) -> Optional[GamePhaseState]:
-        # TODO: Cause entity respawn from here via context or game_model
+    def update(self, delta_time: float, game_model: GameModel) -> Optional[GamePhaseState]:
+        game_model.restart_game()
         return GamePhaseStateFactory.create_green_light_state(self._screen, self._settings_model, self._music_manager)
