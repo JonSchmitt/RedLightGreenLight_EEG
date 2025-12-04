@@ -26,7 +26,7 @@ class Entity:
         # State
         self._current_state:EntityState|None = None
 
-        # Appearance
+        # Appearance if no sprite sheet is set
         self._color = color
         self._size = size
 
@@ -34,6 +34,9 @@ class Entity:
         self._sprite_sheets = sprite_sheets
         self._current_animation_key = None
         self._animation = AnimatedObject(spawn_position,  size, color)
+
+    def __str__(self):
+        return f"Entity({self._entity_id})"
 
     def initialize(self, context: GameContext):
         """Initialize Entity and register in context"""

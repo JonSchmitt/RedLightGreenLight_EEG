@@ -17,12 +17,14 @@ class SettingsModel:
         self._ui_scaling = 1.5
         self._game_over_duration = 5.0
         self._second_player = False
+        self._music_fade_out_time = 1.5
+        self._music_fade_in_time = 2.0
 
     def add_observer(self, observer:SettingsObserver):
         if isinstance(observer, SettingsObserver):
             if observer not in self._settings_observers:
                 self._settings_observers.append(observer)
-                print(f"Observer added: {observer}")
+                # print(f"Observer added: {observer}")
 
     def remove_observer(self, observer):
         self._settings_observers.remove(observer)
@@ -94,5 +96,20 @@ class SettingsModel:
     def set_second_player(self, second_player:bool):
         self._second_player = second_player
         self.notify_observers()
+
+    def get_music_fade_out_time(self):
+        return self._music_fade_out_time
+
+    def set_music_fade_out_time(self, music_fade_out_time: float):
+        self._music_fade_out_time = music_fade_out_time
+        self.notify_observers()
+
+    def get_music_fade_in_time(self):
+        return self._music_fade_in_time
+
+    def set_music_fade_in_time(self, music_fade_in_time: float):
+        self._music_fade_in_time = music_fade_in_time
+        self.notify_observers()
+
 
 

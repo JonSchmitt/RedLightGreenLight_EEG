@@ -16,6 +16,7 @@ class DeadEntityState(EntityState):
         entity.set_animation("dead",loop=False)
 
     def update(self, entity:Entity, action: ENTITY_ACTION, context:GameContext) -> EntityState:
-        if action == ENTITY_ACTION.SPAWN:
-            return EntityStateFactory.create_idle_state()
+        # TODO: Change to idle state when entity is respawned
+        # if context.is_respawn_entities(): # not implemented yet
+        #     return EntityStateFactory.create_idle_state()
         return EntityStateFactory.create_dead_state()

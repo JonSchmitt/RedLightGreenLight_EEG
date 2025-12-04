@@ -25,6 +25,10 @@ class GameState(State, SettingsObserver):
         self._controller = GameController(settings_model, music_manager,
                                           self._game_model, self._view, screen)
 
+    def enter(self, screen: pygame.Surface = None) -> None:
+        super().enter(screen)
+        self._controller.enter()
+
 
     def update(self, delta_time: float) -> State|None:
         """
@@ -32,7 +36,7 @@ class GameState(State, SettingsObserver):
         """
         # What happens in the controller decides the next state
         result = self._controller.update(delta_time)
-        # Return state based on teh keyword returned
+        # Return state based on the keyword returned
         if result.get_quit():
             # End Game
             return None

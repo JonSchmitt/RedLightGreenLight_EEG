@@ -12,22 +12,22 @@ from RedLightGreenLight.States.StateResultsEnum import STATE
 
 
 class GLSController:
-    def __init__(self, model: GLSModel, view: GLSView, settings_model: SettingsModel, music_manager: MusicManager):
+    def __init__(self, model: GLSModel, view:GLSView, settings_model: SettingsModel, music_manager: MusicManager):
         self._model = model
         self._view = view
         self._music_manager = music_manager
-        self._settings = settings_model
+        self._settings_model = settings_model
 
     def enter(self,context:GameContext):
         context.update_from_phase("GreenLightState")
-        self._update_music()
+        self._start_music()
         self._model.reset_time_in_phase()
 
     def update(self, delta_time: float,context:GameContext) -> StateResult:
         result = StateResult()
         self._model.update_time_in_phase(delta_time)
         self._view.show(delta_time)
-        self._update_music()
+        self._update_music(delta_time)
         self._decide_next_state(context, result)
         return result
 
@@ -40,10 +40,15 @@ class GLSController:
         else:
             result.set_next_state(STATE.GREEN_LIGHT_STATE)
 
+    def _start_music(self) -> None:
+        if self._settings_model.is_music():
+            self._music_manager.play(SoundPaths.GREEN_LIGHT,True, fade_in=True, fade_in_time=self._settings_model.get_music_fade_in_time())
 
-    def _update_music(self) -> None:
-        if self._settings.is_music():
-            self._music_manager.play(SoundPaths.GREEN_LIGHT,True)
+    def _update_music(self, delta_time:float) -> None:
+        if self._settings_model.is_music():
+            if self._model.get_remaining_time_in_phase() <= self._settings_model.get_music_fade_out_time()*1.1:
+                self._music_manager.stop(True,self._settings_model.get_music_fade_out_time())
+            self._music_manager.update(delta_time)
 
     def update_settings(self):
-        self._model.update_settings(self._settings.get_switch_time(), self._settings.get_warning_time())
+        self._model.update_settings(self._settings_model.get_switch_time(), self._settings_model.get_warning_time())

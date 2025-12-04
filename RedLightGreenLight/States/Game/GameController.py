@@ -5,13 +5,11 @@ from typing import List
 import pygame
 from RedLightGreenLight.States.Game.GameContext import GameContext
 from RedLightGreenLight.States.Game.GameModel import GameModel
-from RedLightGreenLight.States.Game.GamePhaseStates.GamePhaseState import GamePhaseState
 from RedLightGreenLight.States.Game.GamePhaseStates.GamePhaseStateFactory import GamePhaseStateFactory
 from RedLightGreenLight.States.Game.GamePhaseStates.RestartState.RestartState import RestartState
 from RedLightGreenLight.States.Game.GameView import GameView
 from RedLightGreenLight.Resources.Sound.SoundManager import MusicManager
 from RedLightGreenLight.States.SettingsSubMenu.SettingsModel import SettingsModel
-from RedLightGreenLight.States.SettingsSubMenu.SettingsObserver import SettingsObserver
 from RedLightGreenLight.States.StateResultsEnum import KEY, BUT, ENTITY_ACTION
 from RedLightGreenLight.States.StateResult import StateResult
 
@@ -39,11 +37,13 @@ class GameController:
         for e in self._game_model.get_entities():
             e.initialize(self._context)
 
+    def enter(self):
+        self._game_phase.enter(self._context)
+
 
 
     def update(self,delta_time:float)->StateResult:
         result = StateResult()
-        time_stamp = pygame.time.get_ticks()/1000
 
         # Update game phase
         new_game_phase = self._game_phase.update(delta_time, self._context)

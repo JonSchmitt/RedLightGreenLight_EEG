@@ -14,28 +14,33 @@ from RedLightGreenLight.States.StateResult import StateResult
 class SettingsController:
     """Controller for the settings-menu."""
     def __init__(self, settings_model:SettingsModel, music_manager:MusicManager, view: SettingsView):
-        self._settings = settings_model
+        self._settings_model = settings_model
         self._view = view
         self._music_manager = music_manager
 
 
 
     def enter(self,screen:pygame.Surface = None)->None:
-        self._update_music()
+        self._start_music()
         if screen:
             self._view.enter(screen)
 
     def update(self,delta_time)->StateResult:
         result = StateResult()
         self._view.show(delta_time)
-        self._update_music()
+        self._update_music(delta_time)
         self._handle_events(result)
 
         return result
 
-    def _update_music(self)->None:
-        if self._settings.is_music() and self._view.get_music_checkbox().get_state():
-            self._music_manager.play(SoundPaths.MENU_MUSIC)
+    def _start_music(self) -> None:
+        if self._settings_model.is_music():
+            self._music_manager.play(SoundPaths.MENU_MUSIC, True, fade_in=True,
+                                     fade_in_time=self._settings_model.get_music_fade_in_time())
+
+    def _update_music(self, delta_time: float) -> None:
+        if self._settings_model.is_music():
+            self._music_manager.update(delta_time)
 
 
     def _handle_events(self,result:StateResult):
@@ -58,7 +63,7 @@ class SettingsController:
         """Handles a single keyboard event."""
         if event.key == pygame.K_ESCAPE:
             self._view.reset_changes()
-            if not self._settings.is_music():
+            if not self._settings_model.is_music():
                 self._music_manager.stop()
             return KEY.ESC
         else:
@@ -93,16 +98,16 @@ class SettingsController:
         game_over_time_new = int(self._view.get_game_over_time_slider().get_value())
         music_new = self._view.get_music_checkbox().get_state()
         second_player_new = self._view.get_second_player_checkbox().get_state()
-        if switch_time_new != self._settings.get_switch_time():
-            self._settings.set_switch_time(switch_time_new)
-        if warning_time_new != self._settings.get_warning_time():
-            self._settings.set_warning_time(warning_time_new)
-        if music_new != self._settings.is_music():
-            self._settings.set_music(music_new)
-        if game_over_time_new != self._settings.get_game_over_duration():
-            self._settings.set_game_over_duration(game_over_time_new)
-        if second_player_new != self._settings.is_second_player():
-            self._settings.set_second_player(second_player_new)
+        if switch_time_new != self._settings_model.get_switch_time():
+            self._settings_model.set_switch_time(switch_time_new)
+        if warning_time_new != self._settings_model.get_warning_time():
+            self._settings_model.set_warning_time(warning_time_new)
+        if music_new != self._settings_model.is_music():
+            self._settings_model.set_music(music_new)
+        if game_over_time_new != self._settings_model.get_game_over_duration():
+            self._settings_model.set_game_over_duration(game_over_time_new)
+        if second_player_new != self._settings_model.is_second_player():
+            self._settings_model.set_second_player(second_player_new)
 
 
 

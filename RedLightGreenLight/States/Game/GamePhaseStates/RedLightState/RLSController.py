@@ -19,14 +19,14 @@ class RLSController:
 
     def enter(self,context:GameContext):
         context.update_from_phase("RedLightState")
-        self._update_music()
+        self._start_music()
         self._model.reset_time_in_phase()
 
     def update(self, delta_time: float,context:GameContext) -> StateResult:
         result = StateResult()
         self._model.update_time_in_phase(delta_time)
         self._view.show(delta_time)
-        self._update_music()
+        self._update_music(delta_time)
         self._decide_next_state(context, result)
         return result
 
@@ -41,10 +41,16 @@ class RLSController:
         else:
             result.set_next_state(STATE.RED_LIGHT_STATE)
 
-
-    def _update_music(self) -> None:
+    def _start_music(self) -> None:
         if self._settings_model.is_music():
-            self._music_manager.play(SoundPaths.RED_LIGHT,True)
+            self._music_manager.play(SoundPaths.RED_LIGHT, True, fade_in=True,
+                                     fade_in_time=self._settings_model.get_music_fade_in_time())
+
+    def _update_music(self, delta_time: float) -> None:
+        if self._settings_model.is_music():
+            if self._model.get_remaining_time_in_phase() <= self._settings_model.get_music_fade_out_time()*1.1:
+                self._music_manager.stop(True, self._settings_model.get_music_fade_out_time())
+            self._music_manager.update(delta_time)
 
 
 

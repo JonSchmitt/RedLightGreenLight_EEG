@@ -40,14 +40,10 @@ class GameApp:
             if isinstance(new_state,GameState):
                 self._game_screen = self._screen.copy()
 
-
-
-
             if new_state and new_state is not self._current_state:
                 self._current_state = new_state
                 self._settings_model.add_observer(self._current_state)
                 self._current_state.enter(self._game_screen)
-
 
             elif new_state is None:
                 running = False

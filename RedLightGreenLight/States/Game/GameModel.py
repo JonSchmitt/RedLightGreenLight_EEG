@@ -9,8 +9,6 @@ from RedLightGreenLight.States.Game.GamePhaseStates.GamePhaseState import GamePh
 
 class GameModel:
     def __init__(self,second_player: bool):
-
-
         # Entities
         self._entities = []
         self._second_player = second_player

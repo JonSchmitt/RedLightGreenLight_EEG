@@ -3,7 +3,7 @@ class StateResult:
         self._quit = False
         self._keys = []
         self._next_state = None
-        self._other = []
+        # self._other = []
 
     def set_quit(self,value:bool):
         self._quit = value
@@ -17,14 +17,16 @@ class StateResult:
     def get_keys(self):
         return self._keys
 
-    def add_other(self, other):
-        self._other.append(other)
-
-    def get_other(self):
-        return self._other
 
     def set_next_state(self, state):
         self._next_state = state
 
     def get_next_state(self):
         return self._next_state
+
+
+    # def add_other(self, other):
+    #     self._other.append(other)
+    #
+    # def get_other(self):
+    #     return self._other

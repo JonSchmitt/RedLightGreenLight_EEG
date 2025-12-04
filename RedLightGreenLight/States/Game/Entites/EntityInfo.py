@@ -4,7 +4,7 @@ class EntityInfo:
     """Speichert Status einer einzelnen Entity"""
     def __init__(self, entity_id: str, entity_type: str, spawn_position: tuple[float,float]):
         self._entity_id = entity_id
-        self._entity_type = entity_type  # "Player", "NPC", "Enemy"
+        self._entity_type = entity_type
         self._is_moving = False
         self._is_dead = False
         self._position = (0.0, 0.0)
@@ -22,7 +22,7 @@ class EntityInfo:
     def get_spawn_position(self) -> tuple[float,float]:
         return self._spawn_position
 
-    def set_position(self, position: list[float]):
+    def set_position(self, position: tuple[float,float]):
         self._position = position
 
     def set_spawn_position(self, spawn_position: list[float]):

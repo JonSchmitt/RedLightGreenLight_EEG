@@ -15,7 +15,7 @@ from RedLightGreenLight.States.StateResult import StateResult
 class MenuController:
     """Controller for the menu."""
     def __init__(self, settings_model:SettingsModel, music_manager:MusicManager,model: MenuModel, view: MenuView):
-        self._settings = settings_model
+        self._settings_model = settings_model
         self._model = model
         self._view = view
         self._music_manager = music_manager
@@ -23,12 +23,12 @@ class MenuController:
     def enter(self,screen:pygame.Surface)->None:
         if screen:
             self._view.enter(screen)
+        self._start_music()
 
     def update(self,delta_time)->StateResult:
         result = StateResult()
         self._view.show(delta_time)
-        if self._settings.is_music():
-            self._music_manager.play(SoundPaths.MENU_MUSIC)
+        self._update_music(delta_time)
         self._handle_events(result)
         return result
 
@@ -58,6 +58,14 @@ class MenuController:
         elif event.ui_element == self._view.get_settings_button():
             result.add_key(BUT.SETTINGS)
 
+    def _start_music(self) -> None:
+        if self._settings_model.is_music():
+            self._music_manager.play(SoundPaths.MENU_MUSIC, True, fade_in=True,
+                                     fade_in_time=self._settings_model.get_music_fade_in_time())
+
+    def _update_music(self, delta_time: float) -> None:
+        if self._settings_model.is_music():
+                self._music_manager.update(delta_time)
 
 
     def update_settings(self):

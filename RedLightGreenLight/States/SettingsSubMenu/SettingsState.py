@@ -23,6 +23,7 @@ class SettingsState(State):
                                               self._view)
 
     def enter(self,screen:pygame.Surface = None):
+        super().enter(screen)
         self._controller.enter(screen)
 
     def update(self,delta_time:float) -> Optional[State]:

@@ -27,6 +27,7 @@ class MenuState(State, SettingsObserver):
 
 
     def enter(self,screen:pygame.Surface = None):
+        super().enter(screen)
         self._controller.enter(screen)
 
 

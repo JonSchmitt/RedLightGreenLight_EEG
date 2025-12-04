@@ -31,4 +31,5 @@ class RestartState(GamePhaseState):
         super().enter(context)
 
     def update(self, delta_time: float, context: GameContext) -> Optional[GamePhaseState]:
+        # TODO: Cause entity respawn from here via context or game_model
         return GamePhaseStateFactory.create_green_light_state(self._screen, self._settings_model, self._music_manager)
