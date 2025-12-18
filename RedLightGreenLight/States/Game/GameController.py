@@ -24,7 +24,7 @@ class GameController:
 
         self._game_phase = GamePhaseStateFactory.create_green_light_state(screen, settings_model, music_manager)
         self._settings_model.add_observer(self._game_phase)
-        self._game_phase.enter(self._game_model)
+        # self._game_phase.enter(self._game_model)
 
         self._game_model.load_entities()
 

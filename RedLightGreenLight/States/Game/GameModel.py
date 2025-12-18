@@ -56,7 +56,7 @@ class GameModel:
     def restart_game(self):
         for e in self._entities:
             e_model = e.get_entity_model()
-            if e_model.get_entity_type() == EntityTypesEnum.PLAYER:
+            if e_model.get_entity_type() == EntityTypesEnum.PLAYER: # Respawn Player(s)
                 e_model.reset_position()
                 e_model.set_dead(False)
 
