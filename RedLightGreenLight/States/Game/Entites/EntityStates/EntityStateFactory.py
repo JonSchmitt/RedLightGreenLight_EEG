@@ -1,6 +1,9 @@
 
 
 class EntityStateFactory:
+    """
+    Factory for EntityStates (Singletons).
+    """
     _idle_state = None
     _walking_state = None
     _attacking_state = None

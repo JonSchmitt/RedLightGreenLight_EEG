@@ -18,7 +18,11 @@ class MenuController:
     _SETTINGS = "settings"
     _GAME = "game"
 
-    """Controller for the menu."""
+    """
+    Controller for the main menu (MVC Pattern).
+    Processes inputs and controls the interaction between Model and View.
+    Decides on state transitions based on user interactions.
+    """
     def __init__(self, settings_model:SettingsModel, music_manager:MusicManager,model: MenuModel, view: MenuView):
         self._settings_model = settings_model
         self._model = model
@@ -26,18 +30,24 @@ class MenuController:
         self._music_manager = music_manager
 
     def enter(self,screen:pygame.Surface)->None:
+        """Initializes the state on entry."""
         if screen:
             self._view.enter(screen)
 
         self._start_music()
 
     def update(self,delta_time,keys_pressed:list[list[KEY]])->State|None:
+        """
+        Updates View and Logic every frame.
+        Returns the next state if a change is pending.
+        """
         self._view.show(delta_time)
         self._update_music(delta_time)
         next_state = self._decide_next_state(keys_pressed)
         return next_state
 
     def _decide_next_state(self, keys_pressed:list[list[KEY]]):
+        """Checks events and decides on the next state."""
         results = self._handle_events(keys_pressed)
         if self._QUIT in results:
             return StateFactory.create_quit_state()
@@ -49,6 +59,7 @@ class MenuController:
 
 
     def _handle_events(self,keys_pressed:list[list[KEY]])->list[str]:
+        """Processes keyboard and UI events."""
         results = []
         self._handle_keyboard_events(results,keys_pressed)
         for event in pygame.event.get():

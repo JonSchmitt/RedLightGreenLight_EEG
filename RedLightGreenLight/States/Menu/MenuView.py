@@ -10,7 +10,11 @@ from RedLightGreenLight.UIUtil.UIManager import UIManager
 
 
 class MenuView:
-    """View for the menu."""
+    """
+    View for the main menu.
+    Manages UI elements (buttons) and draws the screen.
+    Uses pygame_gui for UI components.
+    """
 
     def __init__(self, settings_model:SettingsModel,model: MenuModel, screen:pygame.Surface):
         self._screen = screen

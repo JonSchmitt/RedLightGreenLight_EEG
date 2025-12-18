@@ -13,7 +13,7 @@ from RedLightGreenLight.States.StateFactory import StateFactory
 
 
 class SettingsController:
-    """Controller for the settings-menu."""
+    """Controller for the settings menu."""
     _MENU = "menu"
     _QUIT = "quit"
 

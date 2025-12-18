@@ -1,4 +1,8 @@
 class GLSModel:
+    """
+    Model for Green Light Phase.
+    Tracks time passed and switches phases.
+    """
     def __init__(self, switch_time: int, warn_time:int):
         self._switch_time = switch_time
         self._warn_time = warn_time

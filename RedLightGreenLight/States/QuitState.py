@@ -5,6 +5,9 @@ from RedLightGreenLight.States.StateFactory import StateFactory
 
 
 class QuitState(State):
+    """
+    State representing the end of the application.
+    """
     def __init__(self):
         super().__init__()
 

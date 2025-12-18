@@ -12,7 +12,7 @@ from RedLightGreenLight.States.Game.GamePhaseStates.GamePhaseStateFactory import
 
 class RestartState(GamePhaseState):
     """
-    RedLightState
+    RestartState
     """
     def __init__(self, screen: pygame.Surface,  settings_model: SettingsModel,
                  music_manager: MusicManager):

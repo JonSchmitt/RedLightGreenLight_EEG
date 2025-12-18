@@ -13,6 +13,10 @@ from RedLightGreenLight.Inputs.KeysEnum import KEY
 
 
 class MenuState(State, SettingsObserver):
+    """
+    State for the main menu.
+    Connects Controller, Model and View for the menu.
+    """
     def __init__(self, screen: pygame.Surface, settings_model: SettingsModel,
                  music_manager: MusicManager):
         super().__init__()
@@ -27,13 +31,14 @@ class MenuState(State, SettingsObserver):
 
 
     def enter(self,screen:pygame.Surface = None):
+        """Initializes Controller and View on entry."""
         super().enter(screen)
         self._controller.enter(screen)
 
 
     def update(self,delta_time:float,keys:list[list[KEY]]) -> State|None:
         """
-        Update - call every frame
+        Delegates workload to the controller.
         """
         return self._controller.update(delta_time,keys)
 

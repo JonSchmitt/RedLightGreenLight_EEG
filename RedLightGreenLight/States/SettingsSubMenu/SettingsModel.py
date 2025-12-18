@@ -4,6 +4,11 @@ from RedLightGreenLight.States.SettingsSubMenu.SettingsObserver import SettingsO
 
 
 class SettingsModel:
+    """
+    Model for global settings (used like a Singleton but instantiated).
+    Implements the Subject in the Observer pattern to report changes to settings
+    to registered observers (States).
+    """
     def __init__(self):
         self._settings_observers = []
 

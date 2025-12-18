@@ -9,11 +9,34 @@ from RedLightGreenLight.States.StateFactory import StateFactory
 
 
 class GameApp:
+    """
+    Central class that initializes the game application and controls the main loop.
+    It manages the initialization of Pygame, the managers (Input, Music, Settings),
+    and the state transitions.
+    """
     def __init__(self):
         pass
 
     def run(self):
-        """Hauptschleife der Anwendung"""
+        """
+        Main loop of the application.
+
+        Initializes:
+        - Pygame
+        - SettingsModel (Settings)
+        - MusicManager (Background Music)
+        - InputManager (Input Processing)
+        - Screen (Window)
+
+        Starts the application in 'MenuState'.
+
+        The Loop (Game Loop):
+        1. Limits framerate (60 FPS).
+        2. Processes inputs (InputManager).
+        3. Updates the current state (current_state.update).
+        4. Switches the state if a new state is returned.
+        5. Exits the app when 'QuitState' is reached.
+        """
         pygame.init()
 
         settings_model = SettingsModel()

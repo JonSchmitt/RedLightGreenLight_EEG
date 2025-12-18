@@ -1,5 +1,8 @@
 
 class GamePhaseStateFactory:
+    """
+    Factory for GamePhaseStates.
+    """
     _pause_state = None
     _red_light_state = None
     _green_light_state = None

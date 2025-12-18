@@ -14,7 +14,7 @@ from RedLightGreenLight.States.SettingsSubMenu.SettingsObserver import SettingsO
 
 class GreenLightState(GamePhaseState, SettingsObserver):
     """
-    RedLightState
+    Green Light Phase: Players can move freely.
     """
     def __init__(self, screen: pygame.Surface, settings_model: SettingsModel,
                  music_manager: MusicManager):

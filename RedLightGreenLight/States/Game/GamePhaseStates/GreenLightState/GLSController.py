@@ -13,6 +13,10 @@ from RedLightGreenLight.States.Game.GamePhaseStates.GamePhaseStateFactory import
 
 
 class GLSController:
+    """
+    Controller for the Green Light Phase.
+    Manages timer and transitions to Red Light or Game Over.
+    """
     def __init__(self, model: GLSModel, view:GLSView, settings_model: SettingsModel, music_manager: MusicManager):
         self._model = model
         self._view = view

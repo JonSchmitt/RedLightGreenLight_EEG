@@ -9,6 +9,10 @@ from RedLightGreenLight.UIUtil.UIManager import UIManager
 
 
 class GLSView:
+    """
+    View for Green Light Phase.
+    Displays timer and warning signals.
+    """
     def __init__(self, screen: pygame.Surface, model: GLSModel, settings_model: SettingsModel,
                  music_manager: MusicManager):
         self._screen = screen

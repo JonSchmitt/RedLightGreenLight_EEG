@@ -9,7 +9,7 @@ from RedLightGreenLight.States.Game.GameModel import GameModel
 
 
 class WalkingEntityState(EntityState):
-    """Walking State für alle Entities - Singleton"""
+    """Walking State for all Entities - Singleton"""
 
 
     def enter(self, keys_pressed:list[list[KEY]], entity_model:EntityModel, game_model:GameModel):

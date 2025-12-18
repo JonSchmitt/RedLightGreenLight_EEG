@@ -10,7 +10,11 @@ from RedLightGreenLight.States.StateResult import StateResult
 from RedLightGreenLight.States.SettingsSubMenu.SettingsModel import SettingsModel
 
 
-class GameOverController:
+class GOSController:
+    """
+    Controller for the Game Over State.
+    Manages the game over timer and restart transition.
+    """
     def __init__(self, model:GameOverModel, view: GameOverView, settings_model: SettingsModel, music_manager: MusicManager):
 
         self._model = model

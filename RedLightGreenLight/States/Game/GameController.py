@@ -12,7 +12,10 @@ from RedLightGreenLight.States.StateFactory import StateFactory
 
 
 class GameController:
-    """Controller for the game."""
+    """
+    Controller for the game (MVC Pattern).
+    Processes inputs, controls the game flow (GamePhases) and Entity updates.
+    """
     _MENU = "menu"
     _QUIT = "quit"
     def __init__(self, settings_model:SettingsModel, music_manager:MusicManager, game_model: GameModel, view: GameView, screen:pygame.Surface):
@@ -22,6 +25,7 @@ class GameController:
         self._music_manager = music_manager
         self._screen = screen
 
+        # Initializes the first game phase (Green Light State)
         self._game_phase = GamePhaseStateFactory.create_green_light_state(screen, settings_model, music_manager)
         self._settings_model.add_observer(self._game_phase)
         # self._game_phase.enter(self._game_model)
@@ -29,11 +33,15 @@ class GameController:
         self._game_model.load_entities()
 
     def enter(self):
+        """Starts the game phase when entering the GameState."""
         self._game_phase.enter(self._game_model)
 
 
 
     def update(self,delta_time:float, keys_pressed:list[list[KEY]])->State:
+        """
+        Updates game logic, phases, entities, and view.
+        """
 
         # Update game phase
         new_game_phase = self._game_phase.update(delta_time, self._game_model)
@@ -57,6 +65,7 @@ class GameController:
 
 
     def _decide_next_state(self,keys_pressed:list[list[KEY]])->State:
+        """Checks for return to Menu or Quit."""
         results = self._handle_events(keys_pressed)
         if self._QUIT in results:
             return StateFactory.create_quit_state()

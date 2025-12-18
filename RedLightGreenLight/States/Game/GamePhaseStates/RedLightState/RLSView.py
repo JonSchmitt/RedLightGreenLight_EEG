@@ -9,6 +9,10 @@ from RedLightGreenLight.UIUtil.UIManager import UIManager
 
 
 class RLSView:
+    """
+    View for Red Light Phase.
+    Background is red, displays timer.
+    """
     def __init__(self, screen: pygame.Surface, model: RLSModel, settings_model: SettingsModel,
                  music_manager: MusicManager):
         self._screen = screen

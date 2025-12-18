@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 class EntityStateMachine:
-    """ The Entity's state machine"""
+    """ The Entity's state machine. Manages states and delegates updates."""
     def __init__(self, game_model:GameModel, entity_id:str, entity_type:EntityTypesEnum, is_player:bool, spawn_position:tuple[int,int], size:tuple[int,int], movement_speed:int, sprite_sheets:dict[EntityStatesEnum, tuple[str, tuple[int,int,int,int], int, int]], screen:pygame.Surface,color:tuple[int,int,int]=(255,0,0)):
         self._game_model = game_model
         self._entity_model = EntityModel(entity_id,entity_type,is_player,spawn_position,size,movement_speed,EntityStatesEnum.IDLE)

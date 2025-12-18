@@ -1,6 +1,10 @@
 
 
 class GameOverModel:
+    """
+    Game Over State Model.
+    Stores the duration of the game over screen.
+    """
     def __init__(self,game_over_duration:int):
         self._game_over = False
         self._game_over_start_time = 0.0

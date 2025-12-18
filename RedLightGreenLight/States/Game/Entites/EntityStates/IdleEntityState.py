@@ -28,8 +28,8 @@ class IdleEntityState(EntityState):
         else: # Not trying to move
             return EntityStateFactory.create_idle_state()
 
-    def _get_action(self, keys_presed:list[list[KEY]], entity_id:str):
-        keys_held = keys_presed[0]
+    def _get_action(self, keys_pressed:list[list[KEY]], entity_id:str):
+        keys_held = keys_pressed[0]
         if entity_id == "Player_1":
             if KEY.SPACE in keys_held:
                 return Actions.MOVE

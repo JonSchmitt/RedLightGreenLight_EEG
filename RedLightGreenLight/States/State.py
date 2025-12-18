@@ -9,45 +9,51 @@ from RedLightGreenLight.Inputs.KeysEnum import KEY
 
 class State(ABC):
     """
-    Basisklasse für alle States im Moore-Automaten.
-    Jeder State entscheidet autonom über Zustandsübergänge.
+    Base class for all states in the Moore Machine.
+    Each state autonomously decides state transitions based on inputs and time.
+    Implements the Observer pattern for settings changes (when inherited).
     """
-
 
     @abstractmethod
     def update(self,delta_time:float,keys:list[list[KEY]]) -> Optional[State]:
         """
-        Called upon updating the state.
+        Called every frame.
+        Decides the next state.
+
+        Args:
+            delta_time (float): Time since last frame in seconds.
+            keys (list[list[KEY]]): List of pressed keys.
+
+        Returns:
+            Optional[State]: The next state or None if remaining in current state.
         """
         pass
 
 
     def enter(self,screen:pygame.Surface = None) ->None:
         """
-        Called upon entering the state.
-        Prints Entry to console
+        Called when entering this state.
+
+        Args:
+            screen (pygame.Surface, optional): The screen to draw on.
         """
         self.print_enter()
 
 
     def exit(self) -> None:
         """
-        Called upon exiting the state.
-        Prints Exit to console
+        Called when exiting this state.
+        Can be used for cleanup tasks.
         """
         self.print_exit()
 
 
     def print_enter(self):
-        """
-        Prints entry to console
-        """
+        """Logs state entry to console."""
         print(f"[{self.__class__.__name__}] enter()")
 
     def print_exit(self):
-        """
-        Prints Exit to console
-        """
+        """Logs state exit to console."""
         print(f"[{self.__class__.__name__}] exit()")
 
 

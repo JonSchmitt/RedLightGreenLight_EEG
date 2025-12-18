@@ -9,7 +9,11 @@ from RedLightGreenLight.UIElements.AutoLabel import AutoLabel
 from RedLightGreenLight.UIUtil.UIManager import UIManager
 
 
-class GameOverView:
+class GOSView:
+    """
+    View for the Game Over State.
+    Displays "Game Over" text.
+    """
     def __init__(self, screen: pygame.Surface, game_over_model: GameOverModel, settings_model: SettingsModel,
                  music_manager: MusicManager):
         self._screen = screen

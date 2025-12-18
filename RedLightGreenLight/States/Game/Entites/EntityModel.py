@@ -3,6 +3,10 @@ from RedLightGreenLight.States.Game.Entites.EntityTypesEnum import EntityTypesEn
 
 
 class EntityModel:
+    """
+    Model for an Entity.
+    Stores identity, location, size, speed, and state.
+    """
     def __init__(self, entity_id:str, entity_type:EntityTypesEnum, is_player:bool, spawn_position:tuple[int,int], size:tuple[int,int], movement_speed:int, state:EntityStatesEnum):
         # Identity
         self._is_player = is_player

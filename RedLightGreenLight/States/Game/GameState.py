@@ -11,6 +11,10 @@ from RedLightGreenLight.States.Game.GameModel import GameModel
 
 
 class GameState(State, SettingsObserver):
+    """
+    State for the active game.
+    Initializes Controller, Model and View for the game mode.
+    """
     def __init__(self, screen: pygame.Surface, settings_model: SettingsModel,
                  music_manager: MusicManager):
         super().__init__()
@@ -25,13 +29,14 @@ class GameState(State, SettingsObserver):
                                           _game_model, _view, screen)
 
     def enter(self, screen: pygame.Surface = None) -> None:
+        """Starts the controller on enter."""
         super().enter(screen)
         self._controller.enter()
 
 
     def update(self, delta_time: float,keys_pressed:list[list[KEY]]) -> State|None:
         """
-        Update - call every frame
+        Delegates workload to the controller.
         """
         # What happens in the controller decides the next state
         return self._controller.update(delta_time,keys_pressed)

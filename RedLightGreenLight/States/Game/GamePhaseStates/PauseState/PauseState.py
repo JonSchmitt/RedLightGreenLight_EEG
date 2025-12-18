@@ -14,7 +14,8 @@ from RedLightGreenLight.States.SettingsSubMenu.SettingsObserver import SettingsO
 
 class PauseState(GamePhaseState, SettingsObserver):
     """
-    Pause Phase - currently has no usage
+    Pause State.
+    Pauses the game (Logic not fully integrated).
     """
 
     def __init__(self, screen: pygame.Surface,  settings_model: SettingsModel,

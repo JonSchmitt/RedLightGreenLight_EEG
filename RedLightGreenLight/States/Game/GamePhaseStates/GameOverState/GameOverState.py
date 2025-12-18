@@ -15,7 +15,8 @@ from RedLightGreenLight.States.SettingsSubMenu.SettingsObserver import SettingsO
 
 class GameOverState(GamePhaseState, SettingsObserver):
     """
-    RedLightState
+    Game Over State.
+    Shows the Game Over screen after all players died.
     """
     def __init__(self, screen: pygame.Surface,  settings_model: SettingsModel,
                  music_manager: MusicManager):

@@ -16,7 +16,7 @@ from RedLightGreenLight.States.SettingsSubMenu.SettingsObserver import SettingsO
 
 class RedLightState(GamePhaseState, SettingsObserver):
     """
-    RedLightState
+    Red Light Phase: Movement is forbidden (may kill player).
     """
     def __init__(self, screen: pygame.Surface, settings_model: SettingsModel,
                  music_manager: MusicManager):

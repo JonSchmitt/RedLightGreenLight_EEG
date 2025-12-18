@@ -9,6 +9,11 @@ from RedLightGreenLight.States.Game.GamePhaseStates.GamePhasesEnum import GamePh
 
 
 class GameModel:
+    """
+    Model for the game.
+    Manages the game state, entities (players), phase information,
+    and rules (e.g., movement allowed/forbidden).
+    """
     def __init__(self, second_player: bool, screen: pygame.Surface):
         self._screen = screen
 

@@ -9,7 +9,7 @@ from RedLightGreenLight.UIUtil.UIManager import UIManager
 
 
 class SettingsView:
-    """View for the menu."""
+    """View for the settings menu."""
 
     def __init__(self, settings_model: SettingsModel, screen: pygame.Surface):
         self._screen = screen

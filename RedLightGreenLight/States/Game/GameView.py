@@ -7,7 +7,11 @@ from RedLightGreenLight.UIUtil.UIManager import UIManager
 
 
 class GameView:
-    """View for the game."""
+    """
+    View für das Spiel.
+    Zeichnet UI-Overlays und verwaltet die grafische Ausgabe des Spiels
+    (Entities werden aktuell meist direkt im Controller/Model-Loop gezeichnet oder hier getriggert).
+    """
     def __init__(self,settings_model:SettingsModel, model:GameModel, screen:pygame.Surface):
         self._screen = screen
         self._settings = settings_model

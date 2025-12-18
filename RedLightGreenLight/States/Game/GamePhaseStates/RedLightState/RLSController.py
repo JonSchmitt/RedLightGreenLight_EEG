@@ -12,6 +12,10 @@ from RedLightGreenLight.States.SettingsSubMenu.SettingsModel import SettingsMode
 from RedLightGreenLight.States.Game.GameModel import GameModel
 
 class RLSController:
+    """
+    Controller for the Red Light Phase.
+    Manages timer and transitions to Green Light or Game Over.
+    """
     def __init__(self, model: RLSModel, view: RLSView, settings_model: SettingsModel, music_manager: MusicManager):
         self._model = model
         self._view = view

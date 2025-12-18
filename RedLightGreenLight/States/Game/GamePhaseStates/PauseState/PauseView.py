@@ -6,6 +6,9 @@ from RedLightGreenLight.States.SettingsSubMenu.SettingsModel import SettingsMode
 
 
 class PauseView:
+    """
+    View for the Pause State.
+    """
     def __init__(self, screen: pygame.Surface, model: PauseModel, settings_model: SettingsModel,
                  music_manager: MusicManager):
         self._screen = screen

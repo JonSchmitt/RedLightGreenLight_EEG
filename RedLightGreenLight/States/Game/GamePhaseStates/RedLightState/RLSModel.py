@@ -1,4 +1,8 @@
 class RLSModel:
+    """
+    Model for Red Light Phase.
+    Tracks time passed in the red light phase.
+    """
     def __init__(self, switch_time:int):
         self._switch_time = switch_time
         self._time_passed = 0

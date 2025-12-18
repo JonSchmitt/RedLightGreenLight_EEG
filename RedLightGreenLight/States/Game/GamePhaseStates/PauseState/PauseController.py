@@ -13,6 +13,10 @@ from RedLightGreenLight.States.Game.GamePhaseStates.GamePhaseStateFactory import
 
 
 class PauseController:
+    """
+    Controller for the Pause State.
+    Currently not used in the main game flow.
+    """
     def __init__(self, model: PauseModel, view: PauseView, settings_model: SettingsModel, music_manager: MusicManager):
         pass
         self._model = model

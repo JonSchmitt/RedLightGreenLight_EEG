@@ -6,6 +6,10 @@ from RedLightGreenLight.UIElements.AnimatedObject import AnimatedObject
 
 
 class EntityView:
+    """
+    View for an Entity.
+    Handles animations and drawing.
+    """
     def __init__(self,model:EntityModel,screen:pygame.Surface,sprite_sheets:dict[EntityStatesEnum, tuple[str, tuple[int,int,int,int], int, int]], color:tuple[int,int,int]=(255,0,0)):
         self._model = model
         self._screen = screen
