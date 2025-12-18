@@ -1,0 +1,214 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1000">
+  <defs>
+    <style>
+      .box { fill: white; stroke: #333; stroke-width: 2; }
+      .singleton { fill: #ffebee; stroke: #c62828; stroke-width: 2; }
+      .context { fill: #fff9c4; stroke: #f57f17; stroke-width: 2; }
+      .observer { fill: #e8f5e9; stroke: #2e7d32; stroke-width: 2; }
+      .layer1 { fill: #e3f2fd; stroke: #1565c0; stroke-width: 2; }
+      .layer2 { fill: #f3e5f5; stroke: #6a1b9a; stroke-width: 2; }
+      .layer3 { fill: #fce4ec; stroke: #c2185b; stroke-width: 2; }
+      
+      .text { font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; fill: #212121; }
+      .text-small { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; fill: #424242; }
+      .text-title { font-family: 'Segoe UI', Arial, sans-serif; font-size: 16px; font-weight: bold; fill: #212121; }
+      .text-subtitle { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; font-weight: bold; fill: #424242; }
+      
+      .arrow { fill: none; stroke: #666; stroke-width: 2; marker-end: url(#arrowhead); }
+      .arrow-create { fill: none; stroke: #1976d2; stroke-width: 2; stroke-dasharray: 5,3; marker-end: url(#arrowhead-blue); }
+      .arrow-observe { fill: none; stroke: #388e3c; stroke-width: 2; stroke-dasharray: 3,3; marker-end: url(#arrowhead-green); }
+      .arrow-query { fill: none; stroke: #f57c00; stroke-width: 1.5; stroke-dasharray: 2,2; marker-end: url(#arrowhead-orange); }
+    </style>
+    
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#666" />
+    </marker>
+    <marker id="arrowhead-blue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#1976d2" />
+    </marker>
+    <marker id="arrowhead-green" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#388e3c" />
+    </marker>
+    <marker id="arrowhead-orange" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#f57c00" />
+    </marker>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1400" height="1000" fill="#fafafa"/>
+  
+  <!-- Title -->
+  <text x="700" y="30" text-anchor="middle" class="text-title" style="font-size: 20px;">Red Light Green Light - Architektur Übersicht</text>
+  
+  <!-- Main Entry -->
+  <rect x="50" y="60" width="120" height="50" class="box"/>
+  <text x="110" y="82" text-anchor="middle" class="text-subtitle">Main Entry</text>
+  <text x="110" y="100" text-anchor="middle" class="text-small">Main.py → GameApp</text>
+  
+  <!-- Resources -->
+  <g id="resources">
+    <rect x="1200" y="60" width="160" height="180" class="observer" rx="5"/>
+    <text x="1280" y="85" text-anchor="middle" class="text-subtitle">Shared Resources</text>
+    
+    <rect x="1210" y="100" width="140" height="30" class="box" rx="3"/>
+    <text x="1280" y="120" text-anchor="middle" class="text">SettingsModel</text>
+    
+    <rect x="1210" y="140" width="140" height="30" class="box" rx="3"/>
+    <text x="1280" y="160" text-anchor="middle" class="text">MusicManager</text>
+    
+    <rect x="1210" y="180" width="140" height="30" class="box" rx="3"/>
+    <text x="1280" y="200" text-anchor="middle" class="text">InputManager</text>
+    
+    <rect x="1210" y="220" width="140" height="30" class="box" rx="3"/>
+    <text x="1280" y="240" text-anchor="middle" class="text">UIManager</text>
+  </g>
+  
+  <!-- Level 1: Application States -->
+  <g id="level1">
+    <rect x="50" y="160" width="700" height="220" class="layer1" rx="8"/>
+    <text x="400" y="185" text-anchor="middle" class="text-title">Level 1: Application States</text>
+    
+    <!-- StateFactory -->
+    <rect x="70" y="200" width="150" height="60" class="singleton" rx="5"/>
+    <text x="145" y="225" text-anchor="middle" class="text-subtitle">StateFactory</text>
+    <text x="145" y="245" text-anchor="middle" class="text-small">🔒 Singleton</text>
+    
+    <!-- States -->
+    <rect x="250" y="200" width="120" height="60" class="box" rx="5"/>
+    <text x="310" y="225" text-anchor="middle" class="text">MenuState</text>
+    <text x="310" y="245" text-anchor="middle" class="text-small">(MVC)</text>
+    
+    <rect x="390" y="200" width="120" height="60" class="box" rx="5"/>
+    <text x="450" y="225" text-anchor="middle" class="text">GameState</text>
+    <text x="450" y="245" text-anchor="middle" class="text-small">(MVC)</text>
+    
+    <rect x="530" y="200" width="120" height="60" class="box" rx="5"/>
+    <text x="590" y="225" text-anchor="middle" class="text">SettingsState</text>
+    <text x="590" y="245" text-anchor="middle" class="text-small">(MVC)</text>
+    
+    <rect x="250" y="280" width="120" height="60" class="box" rx="5"/>
+    <text x="310" y="315" text-anchor="middle" class="text">QuitState</text>
+    
+    <!-- Factory arrows -->
+    <path d="M 220 230 L 250 230" class="arrow-create"/>
+    <path d="M 220 230 L 230 230 L 230 230 L 390 230" class="arrow-create"/>
+    <path d="M 220 230 L 230 230 L 230 230 L 240 230 L 240 250 L 480 250 L 480 230 L 530 230" class="arrow-create"/>
+    <path d="M 220 250 L 230 250 L 230 310 L 250 310" class="arrow-create"/>
+  </g>
+  
+  <!-- Level 2: Game Phase States -->
+  <g id="level2">
+    <rect x="50" y="420" width="700" height="260" class="layer2" rx="8"/>
+    <text x="400" y="445" text-anchor="middle" class="text-title">Level 2: Game Phase States (in GameState)</text>
+    
+    <!-- GamePhaseStateFactory -->
+    <rect x="70" y="460" width="180" height="60" class="singleton" rx="5"/>
+    <text x="160" y="485" text-anchor="middle" class="text-subtitle">GamePhaseStateFactory</text>
+    <text x="160" y="505" text-anchor="middle" class="text-small">🔒 Singleton</text>
+    
+    <!-- Phase States -->
+    <rect x="280" y="460" width="130" height="60" class="box" rx="5"/>
+    <text x="345" y="485" text-anchor="middle" class="text">GreenLightState</text>
+    <text x="345" y="505" text-anchor="middle" class="text-small">(MVC + Timer)</text>
+    
+    <rect x="430" y="460" width="130" height="60" class="box" rx="5"/>
+    <text x="495" y="485" text-anchor="middle" class="text">RedLightState</text>
+    <text x="495" y="505" text-anchor="middle" class="text-small">(MVC + Timer)</text>
+    
+    <rect x="580" y="460" width="130" height="60" class="box" rx="5"/>
+    <text x="645" y="485" text-anchor="middle" class="text">GameOverState</text>
+    <text x="645" y="505" text-anchor="middle" class="text-small">(MVC + Timer)</text>
+    
+    <rect x="280" y="540" width="130" height="60" class="box" rx="5"/>
+    <text x="345" y="565" text-anchor="middle" class="text">RestartState</text>
+    <text x="345" y="585" text-anchor="middle" class="text-small">(Trigger)</text>
+    
+    <rect x="430" y="540" width="130" height="60" class="box" rx="5"/>
+    <text x="495" y="565" text-anchor="middle" class="text">PauseState</text>
+    <text x="495" y="585" text-anchor="middle" class="text-small">(unused)</text>
+    
+    <!-- Factory arrows -->
+    <path d="M 250 490 L 280 490" class="arrow-create"/>
+    <path d="M 250 490 L 270 490 L 270 490 L 430 490" class="arrow-create"/>
+    <path d="M 250 490 L 270 490 L 270 490 L 270 490 L 580 490" class="arrow-create"/>
+    <path d="M 250 500 L 270 500 L 270 570 L 280 570" class="arrow-create"/>
+    <path d="M 250 500 L 270 500 L 270 570 L 430 570" class="arrow-create"/>
+  </g>
+  
+  <!-- Level 3: Entity States -->
+  <g id="level3">
+    <rect x="50" y="720" width="700" height="220" class="layer3" rx="8"/>
+    <text x="400" y="745" text-anchor="middle" class="text-title">Level 3: Entity States (pro Spieler)</text>
+    
+    <!-- EntityStateFactory -->
+    <rect x="70" y="760" width="170" height="60" class="singleton" rx="5"/>
+    <text x="155" y="785" text-anchor="middle" class="text-subtitle">EntityStateFactory</text>
+    <text x="155" y="805" text-anchor="middle" class="text-small">🔒 Singleton</text>
+    
+    <!-- Entity States -->
+    <rect x="270" y="760" width="140" height="60" class="box" rx="5"/>
+    <text x="340" y="785" text-anchor="middle" class="text">IdleEntityState</text>
+    <text x="340" y="805" text-anchor="middle" class="text-small">Wartet auf Input</text>
+    
+    <rect x="430" y="760" width="140" height="60" class="box" rx="5"/>
+    <text x="500" y="785" text-anchor="middle" class="text">WalkingEntityState</text>
+    <text x="500" y="805" text-anchor="middle" class="text-small">Bewegt sich</text>
+    
+    <rect x="590" y="760" width="140" height="60" class="box" rx="5"/>
+    <text x="660" y="785" text-anchor="middle" class="text">DeadEntityState</text>
+    <text x="660" y="805" text-anchor="middle" class="text-small">Explosion</text>
+    
+    <!-- EntityStateMachine -->
+    <rect x="70" y="850" width="300" height="60" class="box" rx="5"/>
+    <text x="220" y="875" text-anchor="middle" class="text-subtitle">EntityStateMachine</text>
+    <text x="220" y="895" text-anchor="middle" class="text-small">EntityModel + EntityView + CurrentState</text>
+    
+    <!-- Factory arrows -->
+    <path d="M 240 790 L 270 790" class="arrow-create"/>
+    <path d="M 240 790 L 260 790 L 260 790 L 430 790" class="arrow-create"/>
+    <path d="M 240 790 L 260 790 L 260 790 L 590 790" class="arrow-create"/>
+  </g>
+  
+  <!-- Game Context -->
+  <g id="context">
+    <rect x="820" y="420" width="320" height="260" class="context" rx="8"/>
+    <text x="980" y="445" text-anchor="middle" class="text-title">Game Context (Mediator)</text>
+    
+    <rect x="840" y="470" width="280" height="80" class="box" rx="5"/>
+    <text x="980" y="495" text-anchor="middle" class="text-subtitle">GameModel</text>
+    <text x="980" y="515" text-anchor="middle" class="text-small">• Phase Info (Flags)</text>
+    <text x="980" y="532" text-anchor="middle" class="text-small">• Entity List</text>
+    <text x="980" y="549" text-anchor="middle" class="text-small">• Game Rules</text>
+    
+    <rect x="840" y="570" width="280" height="80" class="box" rx="5"/>
+    <text x="980" y="595" text-anchor="middle" class="text-subtitle">Bereitgestellte Methoden:</text>
+    <text x="980" y="615" text-anchor="middle" class="text-small">is_movement_allowed()</text>
+    <text x="980" y="632" text-anchor="middle" class="text-small">is_movement_kills_player()</text>
+  </g>
+  
+  <!-- Main connections -->
+  <path d="M 170 85 L 400 85 L 400 160" class="arrow"/>
+  <path d="M 450 260 L 450 420" class="arrow"/>
+  <path d="M 370 850 L 700 850 L 700 550 L 750 550 L 820 550" class="arrow-query"/>
+  
+  <!-- Observer connections -->
+  <path d="M 1200 115 L 590 115 L 590 200" class="arrow-observe"/>
+  <path d="M 1200 115 L 800 115 L 800 490 L 750 490" class="arrow-observe"/>
+  
+  <!-- Query connections -->
+  <path d="M 710 490 L 820 490" class="arrow-query"/>
+  <path d="M 410 520 L 410 580 L 840 580" class="arrow-query"/>
+  <path d="M 560 520 L 560 600 L 840 600" class="arrow-query"/>
+  
+  <!-- Legend -->
+  <g id="legend">
+    <rect x="50" y="960" width="350" height="25" fill="white" stroke="#333" stroke-width="1" rx="3"/>
+    <text x="60" y="978" class="text-small">Legende:</text>
+    <line x1="110" y1="972" x2="140" y2="972" class="arrow-create"/>
+    <text x="145" y="978" class="text-small">Erstellt</text>
+    <line x1="210" y1="972" x2="240" y2="972" class="arrow-observe"/>
+    <text x="245" y="978" class="text-small">Benachrichtigt</text>
+    <line x1="315" y1="972" x2="345" y2="972" class="arrow-query"/>
+    <text x="350" y="978" class="text-small">Abfrage</text>
+  </g>
+</svg>

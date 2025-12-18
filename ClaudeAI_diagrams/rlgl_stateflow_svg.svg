@@ -1,0 +1,245 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900">
+  <defs>
+    <style>
+      .state { fill: white; stroke: #333; stroke-width: 2; }
+      .state-level1 { fill: #e3f2fd; stroke: #1565c0; stroke-width: 2; }
+      .state-level2 { fill: #f3e5f5; stroke: #6a1b9a; stroke-width: 2; }
+      .state-level3 { fill: #fce4ec; stroke: #c2185b; stroke-width: 2; }
+      .initial { fill: #424242; }
+      
+      .text { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; fill: #212121; }
+      .text-small { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10px; fill: #424242; }
+      .text-title { font-family: 'Segoe UI', Arial, sans-serif; font-size: 16px; font-weight: bold; fill: #212121; }
+      .text-label { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; fill: #424242; font-style: italic; }
+      
+      .arrow { fill: none; stroke: #666; stroke-width: 2; marker-end: url(#arrowhead); }
+      .arrow-user { fill: none; stroke: #1976d2; stroke-width: 2; marker-end: url(#arrowhead-blue); }
+      .arrow-timer { fill: none; stroke: #c62828; stroke-width: 2; marker-end: url(#arrowhead-red); }
+      .arrow-death { fill: none; stroke: #d32f2f; stroke-width: 2.5; marker-end: url(#arrowhead-red); }
+    </style>
+    
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#666" />
+    </marker>
+    <marker id="arrowhead-blue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#1976d2" />
+    </marker>
+    <marker id="arrowhead-red" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#c62828" />
+    </marker>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="900" fill="#fafafa"/>
+  
+  <!-- Title -->
+  <text x="600" y="30" text-anchor="middle" class="text-title" style="font-size: 20px;">State Transition Flow</text>
+  
+  <!-- Level 1: Application States -->
+  <g id="level1-flow">
+    <rect x="50" y="60" width="550" height="280" fill="#e3f2fd" fill-opacity="0.3" stroke="#1565c0" stroke-width="2" stroke-dasharray="5,5" rx="10"/>
+    <text x="60" y="85" class="text-title">Level 1: Application States</text>
+    
+    <!-- Initial -->
+    <circle cx="80" cy="140" r="8" class="initial"/>
+    
+    <!-- MenuState -->
+    <rect x="140" y="110" width="130" height="60" class="state-level1" rx="5"/>
+    <text x="205" y="135" text-anchor="middle" class="text">MenuState</text>
+    <text x="205" y="155" text-anchor="middle" class="text-small">(MVC)</text>
+    
+    <!-- GameState -->
+    <rect x="320" y="110" width="130" height="60" class="state-level1" rx="5"/>
+    <text x="385" y="135" text-anchor="middle" class="text">GameState</text>
+    <text x="385" y="155" text-anchor="middle" class="text-small">(MVC)</text>
+    
+    <!-- SettingsState -->
+    <rect x="140" y="220" width="130" height="60" class="state-level1" rx="5"/>
+    <text x="205" y="245" text-anchor="middle" class="text">SettingsState</text>
+    <text x="205" y="265" text-anchor="middle" class="text-small">(MVC)</text>
+    
+    <!-- QuitState -->
+    <rect x="320" y="220" width="130" height="60" class="state-level1" rx="5"/>
+    <text x="385" y="255" text-anchor="middle" class="text">QuitState</text>
+    
+    <!-- Transitions L1 -->
+    <path d="M 88 140 L 140 140" class="arrow"/>
+    <path d="M 270 140 L 320 140" class="arrow-user"/>
+    <text x="295" y="130" text-anchor="middle" class="text-label">OK / ESC</text>
+    
+    <path d="M 205 170 L 205 220" class="arrow-user"/>
+    <text x="220" y="200" text-anchor="middle" class="text-label">Settings</text>
+    
+    <path d="M 270 250 L 320 250" class="arrow-user"/>
+    <text x="295" y="240" text-anchor="middle" class="text-label">Quit</text>
+    
+    <path d="M 270 140 Q 290 180 270 220 Q 250 200 230 190 Q 210 180 205 170" class="arrow-user"/>
+    
+    <path d="M 385 170 Q 400 180 400 195 Q 400 210 385 220" class="arrow-user"/>
+    <text x="420" y="195" text-anchor="start" class="text-label">Quit</text>
+  </g>
+  
+  <!-- Level 2: Game Phase States -->
+  <g id="level2-flow">
+    <rect x="50" y="380" width="550" height="280" fill="#f3e5f5" fill-opacity="0.3" stroke="#6a1b9a" stroke-width="2" stroke-dasharray="5,5" rx="10"/>
+    <text x="60" y="405" class="text-title">Level 2: Game Phase States (innerhalb GameState)</text>
+    
+    <!-- Initial -->
+    <circle cx="80" cy="460" r="8" class="initial"/>
+    
+    <!-- GreenLightState -->
+    <rect x="140" y="430" width="140" height="70" class="state-level2" rx="5"/>
+    <text x="210" y="455" text-anchor="middle" class="text">GreenLightState</text>
+    <text x="210" y="473" text-anchor="middle" class="text-small">Timer: 10s</text>
+    <text x="210" y="488" text-anchor="middle" class="text-small">Safe Movement</text>
+    
+    <!-- RedLightState -->
+    <rect x="320" y="430" width="140" height="70" class="state-level2" rx="5"/>
+    <text x="390" y="455" text-anchor="middle" class="text">RedLightState</text>
+    <text x="390" y="473" text-anchor="middle" class="text-small">Timer: 10s</text>
+    <text x="390" y="488" text-anchor="middle" class="text-small">⚠ Deadly Movement</text>
+    
+    <!-- GameOverState -->
+    <rect x="140" y="560" width="140" height="70" class="state-level2" rx="5"/>
+    <text x="210" y="585" text-anchor="middle" class="text">GameOverState</text>
+    <text x="210" y="603" text-anchor="middle" class="text-small">Timer: 5s</text>
+    <text x="210" y="618" text-anchor="middle" class="text-small">"YOU DIED!"</text>
+    
+    <!-- RestartState -->
+    <rect x="320" y="560" width="140" height="70" class="state-level2" rx="5"/>
+    <text x="390" y="585" text-anchor="middle" class="text">RestartState</text>
+    <text x="390" y="603" text-anchor="middle" class="text-small">Respawn Trigger</text>
+    <text x="390" y="618" text-anchor="middle" class="text-small">→ Sofort zu Green</text>
+    
+    <!-- Transitions L2 -->
+    <path d="M 88 460 L 140 460" class="arrow"/>
+    
+    <!-- Green to Red -->
+    <path d="M 280 465 L 320 465" class="arrow-timer"/>
+    <text x="300" y="455" text-anchor="middle" class="text-label">Timer</text>
+    
+    <!-- Red to Green -->
+    <path d="M 320 495 L 280 495" class="arrow-timer"/>
+    <text x="300" y="515" text-anchor="middle" class="text-label">Timer</text>
+    
+    <!-- Green to GameOver -->
+    <path d="M 180 500 L 180 560" class="arrow-death"/>
+    <text x="190" y="535" text-anchor="start" class="text-label">All Dead</text>
+    
+    <!-- Red to GameOver -->
+    <path d="M 420 500 L 420 530 L 280 530 L 280 560" class="arrow-death"/>
+    <text x="350" y="520" text-anchor="middle" class="text-label">All Dead</text>
+    
+    <!-- GameOver to Restart -->
+    <path d="M 280 595 L 320 595" class="arrow-timer"/>
+    <text x="300" y="585" text-anchor="middle" class="text-label">5s Timer</text>
+    
+    <!-- Restart to Green -->
+    <path d="M 390 560 L 390 520 L 210 520 L 210 500" class="arrow"/>
+    <text x="300" y="510" text-anchor="middle" class="text-label">Respawn</text>
+  </g>
+  
+  <!-- Level 3: Entity States -->
+  <g id="level3-flow">
+    <rect x="650" y="60" width="500" height="600" fill="#fce4ec" fill-opacity="0.3" stroke="#c2185b" stroke-width="2" stroke-dasharray="5,5" rx="10"/>
+    <text x="660" y="85" class="text-title">Level 3: Entity States (pro Spieler)</text>
+    
+    <!-- Initial -->
+    <circle cx="680" cy="150" r="8" class="initial"/>
+    
+    <!-- IdleEntityState -->
+    <rect x="740" y="120" width="140" height="70" class="state-level3" rx="5"/>
+    <text x="810" y="145" text-anchor="middle" class="text">IdleEntityState</text>
+    <text x="810" y="163" text-anchor="middle" class="text-small">Wartet auf Input</text>
+    <text x="810" y="178" text-anchor="middle" class="text-small">Keine Bewegung</text>
+    
+    <!-- WalkingEntityState -->
+    <rect x="950" y="120" width="150" height="70" class="state-level3" rx="5"/>
+    <text x="1025" y="145" text-anchor="middle" class="text">WalkingEntityState</text>
+    <text x="1025" y="163" text-anchor="middle" class="text-small">Bewegt sich →</text>
+    <text x="1025" y="178" text-anchor="middle" class="text-small">Animation läuft</text>
+    
+    <!-- DeadEntityState -->
+    <rect x="840" y="280" width="150" height="70" class="state-level3" rx="5"/>
+    <text x="915" y="305" text-anchor="middle" class="text">DeadEntityState</text>
+    <text x="915" y="323" text-anchor="middle" class="text-small">💥 Explosion</text>
+    <text x="915" y="338" text-anchor="middle" class="text-small">Animation einmalig</text>
+    
+    <!-- Transitions L3 -->
+    <path d="M 688 150 L 740 150" class="arrow"/>
+    
+    <!-- Idle to Walking -->
+    <path d="M 880 150 L 950 150" class="arrow-user"/>
+    <text x="915" y="140" text-anchor="middle" class="text-label">SPACE/→</text>
+    <text x="915" y="170" text-anchor="middle" class="text-label">+ Movement OK</text>
+    
+    <!-- Walking to Idle -->
+    <path d="M 950 165 L 880 165" class="arrow-user"/>
+    <text x="915" y="185" text-anchor="middle" class="text-label">Release Key</text>
+    
+    <!-- Idle self-loop -->
+    <path d="M 740 150 Q 720 130 720 155 Q 720 180 740 155" class="arrow"/>
+    <text x="680" y="155" text-anchor="end" class="text-label">Kein Input</text>
+    
+    <!-- Walking self-loop -->
+    <path d="M 1100 150 Q 1120 130 1120 155 Q 1120 180 1100 155" class="arrow-user"/>
+    <text x="1150" y="155" text-anchor="start" class="text-label">Input held</text>
+    
+    <!-- Idle to Dead -->
+    <path d="M 810 190 L 810 230 L 890 230 L 890 280" class="arrow-death"/>
+    <text x="850" y="240" text-anchor="middle" class="text-label">Move in Red Light</text>
+    
+    <!-- Walking to Dead -->
+    <path d="M 1025 190 L 1025 240 L 940 240 L 940 280" class="arrow-death"/>
+    <text x="1020" y="220" text-anchor="middle" class="text-label">Red Light aktiv</text>
+    
+    <!-- Dead to Idle -->
+    <path d="M 840 315 L 780 315 L 780 190" class="arrow"/>
+    <text x="750" y="250" text-anchor="end" class="text-label">RestartState</text>
+    <text x="750" y="265" text-anchor="end" class="text-label">Respawn</text>
+    
+    <!-- Dead self-loop -->
+    <path d="M 990 315 Q 1010 295 1010 320 Q 1010 345 990 320" class="arrow"/>
+    <text x="1030" y="320" text-anchor="start" class="text-label">Bleibt tot</text>
+    
+    <!-- Info boxes -->
+    <rect x="670" y="400" width="220" height="100" fill="white" stroke="#c2185b" stroke-width="1" rx="5"/>
+    <text x="780" y="420" text-anchor="middle" class="text" font-weight="bold">Zustandsabfragen:</text>
+    <text x="680" y="440" class="text-small">• game_model.is_movement_allowed()</text>
+    <text x="680" y="458" class="text-small">• game_model.is_movement_kills_player()</text>
+    <text x="680" y="476" class="text-small">• game_model.is_game_paused()</text>
+    <text x="680" y="494" class="text-small">→ Entscheidung über Transition</text>
+    
+    <rect x="920" y="400" width="220" height="100" fill="white" stroke="#c2185b" stroke-width="1" rx="5"/>
+    <text x="1030" y="420" text-anchor="middle" class="text" font-weight="bold">Player Input:</text>
+    <text x="930" y="440" class="text-small">Player 1: SPACE-Taste</text>
+    <text x="930" y="458" class="text-small">Player 2: → Pfeiltaste</text>
+    <text x="930" y="476" class="text-small"></text>
+    <text x="930" y="494" class="text-small">Keys werden gehalten für Movement</text>
+  </g>
+  
+  <!-- Legend -->
+  <g id="legend">
+    <rect x="50" y="700" width="550" height="80" fill="white" stroke="#333" stroke-width="1" rx="5"/>
+    <text x="60" y="720" class="text" font-weight="bold">Legende:</text>
+    
+    <line x1="70" y1="740" x2="120" y2="740" class="arrow"/>
+    <text x="130" y="745" class="text-small">Normale Transition</text>
+    
+    <line x1="240" y1="740" x2="290" y2="740" class="arrow-user"/>
+    <text x="300" y="745" class="text-small">User Action (Input)</text>
+    
+    <line x1="420" y1="740" x2="470" y2="740" class="arrow-timer"/>
+    <text x="480" y="745" class="text-small">Timer abgelaufen</text>
+    
+    <line x1="70" y1="765" x2="120" y2="765" class="arrow-death"/>
+    <text x="130" y="770" class="text-small">Tod / All Players Dead</text>
+    
+    <circle cx="240" cy="765" r="6" class="initial"/>
+    <text x="260" y="770" class="text-small">Initial State</text>
+  </g>
+  
+  <text x="600" y="880" text-anchor="middle" class="text-small" style="font-style: italic;">
+    Hinweis: Entity States werden PER SPIELER instanziiert. Bei 2 Spielern existieren 2 parallele State Machines.
+  </text>
+</svg>
