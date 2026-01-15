@@ -1,7 +1,7 @@
 from RedLightGreenLight.States.Game.GameModel import GameModel
 from RedLightGreenLight.States.Game.GamePhaseStates import GamePhaseState
-from RedLightGreenLight.States.Game.GamePhaseStates.GameOverState.GOSModel import GameOverModel
-from RedLightGreenLight.States.Game.GamePhaseStates.GameOverState.GOSView import GameOverView
+from RedLightGreenLight.States.Game.GamePhaseStates.GameOverState.GOSModel import GOSModel
+from RedLightGreenLight.States.Game.GamePhaseStates.GameOverState.GOSView import GOSView
 from RedLightGreenLight.Resources.Sound.SoundManager import MusicManager
 from RedLightGreenLight.Resources.Sound.SoundPaths import SoundPaths
 from RedLightGreenLight.States.Game.GamePhaseStates.GamePhaseStateFactory import GamePhaseStateFactory
@@ -15,7 +15,7 @@ class GOSController:
     Controller for the Game Over State.
     Manages the game over timer and restart transition.
     """
-    def __init__(self, model:GameOverModel, view: GameOverView, settings_model: SettingsModel, music_manager: MusicManager):
+    def __init__(self, model:GOSModel, view: GOSView, settings_model: SettingsModel, music_manager: MusicManager):
 
         self._model = model
         self._view = view

@@ -32,6 +32,46 @@ Das folgende Diagramm zeigt die Initialisierung und die Verwaltung der Zustände
 
 ![Architecture Overview](https://mermaid.ink/svg/Zmxvd2NoYXJ0IFRECiAgICBjbGFzc0RlZiBhcHAgZmlsbDojZjlmLHN0cm9rZTojMzMzLHN0cm9rZS13aWR0aDoycHg7CiAgICBjbGFzc0RlZiBmYWN0b3J5IGZpbGw6I2ZmZCxzdHJva2U6IzMzMyxzdHJva2Utd2lkdGg6MnB4OwogICAgY2xhc3NEZWYgc3RhdGUgZmlsbDojYmRmLHN0cm9rZTojMzMzLHN0cm9rZS13aWR0aDoycHg7CgogICAgTWFpbltNYWluLnB5XSAtLS0tPnxjcmVhdGVzIGFuZCBydW5zfCBBcHBbR2FtZUFwcF06OjphcHAKICAgIEFwcCAtLS0tPnxtYW5hZ2VzfCBDdXJyZW50U3RhdGVbQ3VycmVudCBTdGF0ZV06OjpzdGF0ZQogICAgCiAgICBBcHAgLS4uLi0+fHVzZXN8IEZhY3RvcnlbU3RhdGVGYWN0b3J5XTo6OmZhY3RvcnkKICAgIAogICAgc3ViZ3JhcGggU3RhdGVzIFtBdmFpbGFibGUgU3RhdGVzXQogICAgICAgIGRpcmVjdGlvbiBMUgogICAgICAgIE1lbnVbTWVudVN0YXRlXTo6OnN0YXRlCiAgICAgICAgU2V0dGluZ3NbU2V0dGluZ3NTdGF0ZV06OjpzdGF0ZQogICAgICAgIEdhbWVbR2FtZVN0YXRlXTo6OnN0YXRlCiAgICAgICAgUXVpdFtRdWl0U3RhdGVdOjo6c3RhdGUKICAgIGVuZAogICAgCiAgICBGYWN0b3J5IC0uLi4tPnxpbnN0YW50aWF0ZXN8IE1lbnUKICAgIEZhY3RvcnkgLS4uLi0+fGluc3RhbnRpYXRlc3wgU2V0dGluZ3MKICAgIEZhY3RvcnkgLS4uLi0+fGluc3RhbnRpYXRlc3wgR2FtZQogICAgRmFjdG9yeSAtLi4uLT58aW5zdGFudGlhdGVzfCBRdWl0)
 
+<details>
+<summary><b>LaTeX Source (TikZ)</b></summary>
+
+![Architecture Overview (LaTeX/TikZ)](./docs/images/architecture_overview.png)
+
+```latex
+\begin{tikzpicture}[
+    node distance=1.5cm and 2.5cm,
+    font=\sffamily\small,
+    main_node/.style={rectangle, draw, thick, fill=white, minimum width=2.5cm, minimum height=0.8cm},
+    app_node/.style={rectangle, draw, thick, fill=magenta!20, minimum width=2.5cm, minimum height=0.8cm, rounded corners},
+    state_node/.style={rectangle, draw, thick, fill=blue!15, minimum width=2.5cm, minimum height=0.8cm, rounded corners},
+    factory_node/.style={rectangle, draw, thick, fill=yellow!20, minimum width=2.5cm, minimum height=0.8cm, rounded corners},
+    arrow/.style={-{Stealth[scale=1.2]}, thick},
+    dashed_arrow/.style={-{Stealth[scale=1.2]}, thick, dashed},
+    subgraph/.style={draw, dashed, gray, inner sep=0.5cm, rounded corners}
+]
+    \node[main_node] (main) {Main.py};
+    \node[app_node, below=of main] (app) {GameApp};
+    \node[state_node, below=of app] (current) {Current State};
+    \node[factory_node, right=of app] (factory) {StateFactory};
+    \node[state_node, below left=2cm and -1cm of factory] (menu) {MenuState};
+    \node[state_node, right=0.5cm of menu] (settings) {SettingsState};
+    \node[state_node, right=0.5cm of settings] (game) {GameState};
+    \node[state_node, right=0.5cm of game) (quit) {QuitState};
+    \begin{scope}[on background layer]
+        \node[subgraph, fit=(menu) (settings) (game) (quit), label={[anchor=north]above:Available States}] (states_box) {};
+    \end{scope}
+    \draw[arrow] (main) -- node[right] {creates and runs} (app);
+    \draw[arrow] (app) -- node[right] {manages} (current);
+    \draw[dashed_arrow] (app) -- node[above] {uses} (factory);
+    \draw[dashed_arrow] (factory.south) -- node[left, pos=0.2] {instantiates} (menu.north);
+    \draw[dashed_arrow] (factory.south) -- (settings.north);
+    \draw[dashed_arrow] (factory.south) -- (game.north);
+    \draw[dashed_arrow] (factory.south) -- (quit.north);
+\end{tikzpicture}
+```
+</details>
+
+
 
 
 
@@ -89,7 +129,8 @@ Dieser Graph zeigt die Übergänge zwischen den Haupt-Zuständen der Anwendung. 
 
 Innerhalb des `GameState` existiert ein eigenständiger Automat für den Spielablauf. Bemerkenswert ist, dass der Übergang von `GameOver` zu `Restart` ohne Nutzereingabe nach einem Timer erfolgt, um einen flüssigen Spielablauf für BCI-Experimente zu gewährleisten.
 
-![Game Phases FSM](https://mermaid.ink/svg/Zmxvd2NoYXJ0IFRECiAgICBjbGFzc0RlZiBzdGF0ZSBmaWxsOiNiZGYsc3Ryb2tlOiMzMzMsc3Ryb2tlLXdpZHRoOjJweDsKICAgIGNsYXNzRGVmIGdyZWVuIGZpbGw6I2RmZCxzdHJva2U6IzMzMyxzdHJva2Utd2lkdGg6MnB4OwogICAgY2xhc3NEZWYgcmVkIGZpbGw6I2ZkZCxzdHJva2U6IzMzMyxzdHJva2Utd2lkdGg6MnB4OwogICAgY2xhc3NEZWYgYWxlcnQgZmlsbDojZjlmLHN0cm9rZTojMzMzLHN0cm9rZS13aWR0aDoycHg7CgogICAgU3RhcnQoKFN0YXJ0KSkgLS0tLT4gR3JlZW5bR3JlZW5MaWdodFN0YXRlXTo6OmdyZWVuCiAgICAKICAgIEdyZWVuIC0tLS0+fFRpbWVyfCBSZWRbUmVkTGlnaHRTdGF0ZV06OjpyZWQKICAgIFJlZCAtLS0tPnxUaW1lcnwgR3JlZW4KICAgIAogICAgUmVkIC0tLS0+fEFsbCBwbGF5ZXJzIGRlYWR8IEdhbWVPdmVyW0dhbWVPdmVyU3RhdGVdOjo6YWxlcnQKICAgIAogICAgR2FtZU92ZXIgLS0tLT58QXV0b21hdGljIHRpbWVyfCBSZXN0YXJ0W1Jlc3RhcnRTdGF0ZV06OjpzdGF0ZQogICAgUmVzdGFydCAtLS0tPnxSZXNldCBkb25lfCBHcmVlbgoKICAgIGxpbmtTdHlsZSBkZWZhdWx0IHN0cm9rZTojMzMzLHN0cm9rZS13aWR0aDoxcHg7)
+![Game Phases FSM](https://mermaid.ink/svg/Zmxvd2NoYXJ0IExSCiAgICBjbGFzc0RlZiBncmVlbiBmaWxsOiNkZmQsc3Ryb2tlOiMzMzMsc3Ryb2tlLXdpZHRoOjJweDsKICAgIGNsYXNzRGVmIHJlZCBmaWxsOiNmZGQsc3Ryb2tlOiMzMzMsc3Ryb2tlLXdpZHRoOjJweDsKICAgIGNsYXNzRGVmIGFsZXJ0IGZpbGw6I2Y5ZixzdHJva2U6IzMzMyxzdHJva2Utd2lkdGg6MnB4OwogICAgY2xhc3NEZWYgc3RhdGUgZmlsbDojYmRmLHN0cm9rZTojMzMzLHN0cm9rZS13aWR0aDoycHg7CgogICAgU3RhcnQoKFN0YXJ0KSkgLS0tLT4gR3JlZW5bR3JlZW5MaWdodFN0YXRlXTo6OmdyZWVuCiAgICBHcmVlbiA8LS0tLT58VGltZXJ8IFJlZFtSZWRMaWdodFN0YXRlXTo6OnJlZAogICAgCiAgICBHcmVlbiAtLS0tPnxBbGwgcGxheWVycyBkZWFkfCBHYW1lT3ZlcltHYW1lT3ZlclN0YXRlXTo6OmFsZXJ0CiAgICBSZWQgLS0tLT58QWxsIHBsYXllcnMgZGVhZHwgR2FtZU92ZXIKICAgIAogICAgR2FtZU92ZXIgLS0tLT58QXV0b21hdGljIHRpbWVyfCBSZXN0YXJ0W1Jlc3RhcnRTdGF0ZV06OjpzdGF0ZQogICAgUmVzdGFydCAtLS0tPnxSZXNldCBkb25lfCBHcmVlbgoKICAgIGxpbmtTdHlsZSBkZWZhdWx0IHN0cm9rZTojMzMzLHN0cm9rZS13aWR0aDoxcHg7)
+
 
 
 ### Entity State Machine (Player Behavior)

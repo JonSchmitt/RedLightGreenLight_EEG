@@ -3,13 +3,13 @@ from typing import Optional
 import pygame
 
 from RedLightGreenLight.States.Game.GameModel import GameModel
-from RedLightGreenLight.States.Game.GamePhaseStates.GameOverState.GOSModel import GameOverModel
+from RedLightGreenLight.States.Game.GamePhaseStates.GameOverState.GOSModel import GOSModel
 from RedLightGreenLight.States.Game.GamePhaseStates.GamePhaseState import GamePhaseState
 from RedLightGreenLight.Resources.Sound.SoundManager import MusicManager
 from RedLightGreenLight.States.SettingsSubMenu.SettingsModel import SettingsModel
 from RedLightGreenLight.States.Game.GamePhaseStates.GamePhaseStateFactory import GamePhaseStateFactory
-from RedLightGreenLight.States.Game.GamePhaseStates.GameOverState.GOSController import GameOverController
-from RedLightGreenLight.States.Game.GamePhaseStates.GameOverState.GOSView import GameOverView
+from RedLightGreenLight.States.Game.GamePhaseStates.GameOverState.GOSController import GOSController
+from RedLightGreenLight.States.Game.GamePhaseStates.GameOverState.GOSView import GOSView
 from RedLightGreenLight.States.SettingsSubMenu.SettingsObserver import SettingsObserver
 
 
@@ -22,9 +22,9 @@ class GameOverState(GamePhaseState, SettingsObserver):
                  music_manager: MusicManager):
         super().__init__()
         self._screen = screen
-        self._game_over_model = GameOverModel(settings_model.get_game_over_duration())
-        self._view = GameOverView(screen, self._game_over_model, settings_model, music_manager)
-        self._controller = GameOverController(self._game_over_model, self._view, settings_model, music_manager)
+        self._game_over_model = GOSModel(settings_model.get_game_over_duration())
+        self._view = GOSView(screen, self._game_over_model, settings_model, music_manager)
+        self._controller = GOSController(self._game_over_model, self._view, settings_model, music_manager)
 
         self._settings_model = settings_model
         self._music_manager = music_manager

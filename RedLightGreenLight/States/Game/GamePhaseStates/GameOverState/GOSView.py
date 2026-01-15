@@ -3,7 +3,7 @@ import pygame_gui
 
 from RedLightGreenLight.States.Game.GameModel import GameModel
 from RedLightGreenLight.Resources.Sound.SoundManager import MusicManager
-from RedLightGreenLight.States.Game.GamePhaseStates.GameOverState.GOSModel import GameOverModel
+from RedLightGreenLight.States.Game.GamePhaseStates.GameOverState.GOSModel import GOSModel
 from RedLightGreenLight.States.SettingsSubMenu.SettingsModel import SettingsModel
 from RedLightGreenLight.UIElements.AutoLabel import AutoLabel
 from RedLightGreenLight.UIUtil.UIManager import UIManager
@@ -14,7 +14,7 @@ class GOSView:
     View for the Game Over State.
     Displays "Game Over" text.
     """
-    def __init__(self, screen: pygame.Surface, game_over_model: GameOverModel, settings_model: SettingsModel,
+    def __init__(self, screen: pygame.Surface, game_over_model: GOSModel, settings_model: SettingsModel,
                  music_manager: MusicManager):
         self._screen = screen
         self._game_over_model = game_over_model

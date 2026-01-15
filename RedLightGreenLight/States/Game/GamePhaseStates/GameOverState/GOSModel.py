@@ -1,6 +1,6 @@
 
 
-class GameOverModel:
+class GOSModel:
     """
     Game Over State Model.
     Stores the duration of the game over screen.
