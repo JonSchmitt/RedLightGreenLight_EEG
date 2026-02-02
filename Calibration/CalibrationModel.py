@@ -10,7 +10,7 @@ class CalibrationModel:
     def __init__(self):
         self._phase = CalibrationPhase.EXPLANATION
         self._start_time = 0
-        self._phase_duration = 5.0  # seconds
+        self._phase_duration = 30.0  # seconds
         
         # Data storage
         self._relaxed_data = []
@@ -20,11 +20,8 @@ class CalibrationModel:
         self._alpha_ratio = 1.0
         self._beta_ratio = 1.0
         
-        # Math tasks
-        self._math_generator = MathTaskGenerator()
-        self._current_math_task = ""
-        self._last_math_task_time = 0
-        self._math_task_interval = 5.0
+        # Math tasks (Centralized Logic)
+        self._math_generator = MathTaskGenerator(interval=5.0)
 
     @property
     def phase(self):
@@ -52,13 +49,14 @@ class CalibrationModel:
 
     @property
     def current_math_task(self):
-        return self._current_math_task
+        return self._math_generator.current_task
 
     def start_phase(self, phase):
         self._phase = phase
         self._start_time = time.time()
         if phase == CalibrationPhase.CONCENTRATED:
-            self._generate_new_math_task()
+            self._math_generator.reset()
+            self._math_generator.update()
 
     def get_remaining_time(self):
         if self._phase in [CalibrationPhase.RELAXED, CalibrationPhase.CONCENTRATED]:
@@ -71,16 +69,11 @@ class CalibrationModel:
 
     def check_math_task_update(self):
         """
-        Logic to decide if a new math task is needed based on the timer.
-        Called by the Controller.
+        Logic to decide if a new math task is needed.
+        Delegates to the centralized MathTaskGenerator.
         """
         if self._phase == CalibrationPhase.CONCENTRATED:
-            if time.time() - self._last_math_task_time >= self._math_task_interval:
-                self._generate_new_math_task()
-
-    def _generate_new_math_task(self):
-        self._current_math_task = self._math_generator.generate_task()
-        self._last_math_task_time = time.time()
+            self._math_generator.update()
 
     def add_data(self, data):
         if self._phase == CalibrationPhase.RELAXED:

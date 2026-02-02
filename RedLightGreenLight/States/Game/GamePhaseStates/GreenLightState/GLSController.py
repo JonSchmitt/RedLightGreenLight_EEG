@@ -31,6 +31,7 @@ class GLSController:
     def update(self, delta_time: float,game_model:GameModel) -> GamePhaseState:
 
         self._model.update_time_in_phase(delta_time)
+        self._model.check_math_task_update()
         self._view.show(delta_time)
         self._update_music(delta_time)
         return self._decide_next_state(game_model)

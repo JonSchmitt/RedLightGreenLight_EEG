@@ -4,8 +4,8 @@ import pygame_gui
 from RedLightGreenLight.Resources.Sound.SoundManager import MusicManager
 from RedLightGreenLight.States.Game.GamePhaseStates.GreenLightState.GLSModel import GLSModel
 from RedLightGreenLight.States.SettingsSubMenu.SettingsModel import SettingsModel
-from RedLightGreenLight.UIElements.VBox import VBox
-from RedLightGreenLight.UIUtil.UIManager import UIManager
+from UIUtils.VBox import VBox
+from UIUtils.UIManager import UIManager
 
 
 class GLSView:
@@ -36,6 +36,22 @@ class GLSView:
 
 
     def _initialize_ui(self):
+        #self._initialize_timer_box()
+
+        # Math Task Label - Top Center
+        screen_width = self._screen.get_width()
+        math_label_width = 500
+        math_label_height = 100
+        self._math_task_label = pygame_gui.elements.UILabel(
+            pygame.Rect((screen_width // 2) - (math_label_width // 2), 10, math_label_width, math_label_height),
+            manager=self._manager,
+            text="",
+            object_id="#MathTaskLabel"
+        )
+
+        self._warning_time_label = pygame_gui.elements.UILabel(pygame.Rect(0, 0, 500, 500), manager=self._manager, text="",anchors={'centerx': 'centerx', 'centery': 'centery'},object_id="#WarningTimeLabel")
+
+    def _initialize_timer_box(self):
         vBox_height = int(60 * self._settings.get_ui_scaling())
         vBox_width = int(75 * self._settings.get_ui_scaling())
         label_height = int(50 * self._settings.get_ui_scaling())
@@ -47,11 +63,11 @@ class GLSView:
                 round(self._model.get_remaining_time_in_phase())), container=self._vbox.get_panel())
         self._vbox.add_element(self._time_label)
 
-        self._warning_time_label = pygame_gui.elements.UILabel(pygame.Rect(0, 0, 500, 500), manager=self._manager, text="",anchors={'centerx': 'centerx', 'centery': 'centery'},object_id="#WarningTimeLabel")
-
-
     def _update_labels(self):
-        self._time_label.set_text("T: " + str(round(self._model.get_remaining_time_in_phase())))
+        if self._time_label:
+            self._time_label.set_text("T: " + str(round(self._model.get_remaining_time_in_phase())))
+        if self._math_task_label:
+            self._math_task_label.set_text(self._model.current_math_task)
 
         remaining_warning_time = self._model.get_remaining_warning_time()
         if remaining_warning_time > 0:

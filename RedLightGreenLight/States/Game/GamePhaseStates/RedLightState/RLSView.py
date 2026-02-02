@@ -4,8 +4,8 @@ import pygame_gui
 from RedLightGreenLight.Resources.Sound.SoundManager import MusicManager
 from RedLightGreenLight.States.Game.GamePhaseStates.RedLightState.RLSModel import RLSModel
 from RedLightGreenLight.States.SettingsSubMenu.SettingsModel import SettingsModel
-from RedLightGreenLight.UIElements.VBox import VBox
-from RedLightGreenLight.UIUtil.UIManager import UIManager
+from UIUtils.VBox import VBox
+from UIUtils.UIManager import UIManager
 
 
 class RLSView:
@@ -34,6 +34,10 @@ class RLSView:
         self._manager.draw_ui(self._screen)
 
     def _initialize_ui(self):
+        pass
+        #self._initialize_timer_box()
+
+    def _initialize_timer_box(self):
         vBox_height = int(60 * self._settings.get_ui_scaling())
         vBox_width = int(75 * self._settings.get_ui_scaling())
         label_height = int(50 * self._settings.get_ui_scaling())
@@ -45,8 +49,7 @@ class RLSView:
                 round(self._model.get_remaining_time_in_phase())), container=self._vbox.get_panel())
         self._vbox.add_element(self._time_label)
 
-
-
     def _update_labels(self):
-        self._time_label.set_text("T: " + str(round(self._model.get_remaining_time_in_phase())))
+        if self._time_label:
+            self._time_label.set_text("T: " + str(round(self._model.get_remaining_time_in_phase())))
 

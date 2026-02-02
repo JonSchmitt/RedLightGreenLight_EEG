@@ -5,8 +5,8 @@ from RedLightGreenLight.States.Game.GameModel import GameModel
 from RedLightGreenLight.Resources.Sound.SoundManager import MusicManager
 from RedLightGreenLight.States.Game.GamePhaseStates.GameOverState.GOSModel import GOSModel
 from RedLightGreenLight.States.SettingsSubMenu.SettingsModel import SettingsModel
-from RedLightGreenLight.UIElements.AutoLabel import AutoLabel
-from RedLightGreenLight.UIUtil.UIManager import UIManager
+from UIUtils.AutoLabel import AutoLabel
+from UIUtils.UIManager import UIManager
 
 
 class GOSView:

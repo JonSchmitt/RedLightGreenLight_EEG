@@ -44,7 +44,8 @@ class GameApp:
         input_manager = InputManager()
         screen = pygame.display.set_mode(
             (settings_model.get_window_width(),
-             settings_model.get_window_height())
+             settings_model.get_window_height()),
+            pygame.FULLSCREEN
         )
 
         game_screen = screen.copy()

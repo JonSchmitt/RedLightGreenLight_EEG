@@ -70,6 +70,7 @@ class SettingsController:
     def _handle_keyboard_events(self, results: list[str], keys_pressed: list[list[KEY]]) -> None:
         key_down = keys_pressed[1]
         if KEY.ESC in key_down:
+            self._view.reset_changes()
             results.append(self._MENU)
 
     def _handle_button_event(self, event: pygame.event, results: list[str]) -> None:

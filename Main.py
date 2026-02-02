@@ -26,7 +26,7 @@ class Main:
         print("Starting EEG Calibration...")
         calibration = CalibrationApp()
         self._alpha_threshold, self._beta_threshold = calibration.run()
-        
+
         # 2. Game Start
         print(f"Starting Game with Thresholds: Alpha={self._alpha_threshold}, Beta={self._beta_threshold}")
         game = GameApp()

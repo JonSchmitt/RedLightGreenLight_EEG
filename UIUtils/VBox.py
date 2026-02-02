@@ -7,11 +7,11 @@ from pygame_gui.elements import UIPanel
 
 class VBox:
     _panel_offset = 6
-    def __init__(self, relative_rect: pygame.Rect, manager: pygame_gui.UIManager, spacing: int = 10, anchors=None, **panel_kwargs):
+    def __init__(self, relative_rect: pygame.Rect, manager: pygame_gui.UIManager, spacing: int = 10, anchors=None, object_id: str = "#VBoxPanel", **panel_kwargs):
         self._manager = manager
         self._spacing = spacing
         self._elements = []
-        self._panel = UIPanel(relative_rect, manager=manager, anchors=anchors or {}, **panel_kwargs)
+        self._panel = UIPanel(relative_rect, manager=manager, anchors=anchors or {}, object_id=object_id, **panel_kwargs)
 
         # Panel size state
         self._panel_width = relative_rect.width
@@ -42,19 +42,12 @@ class VBox:
     def _update_size(self):
         needed_height, needed_width = self._compute_needed_size()
 
-        # Add small padding
-        needed_height += self._spacing
-        needed_width += self._spacing
-
-        # Expand/Shrink height
-        if needed_height != self._panel_height:
-            self._panel_height = max(needed_height, 50)  # minimum height optional
-            self._panel.set_dimensions((self._panel_width, self._panel_height))
-
-        # Expand/Shrink width
-        if needed_width != self._panel_width:
-            self._panel_width = max(needed_width, 50)
-            self._panel.set_dimensions((self._panel_width, self._panel_height))
+        # The user uses 20px extra buffer plus spacing to size the panel.
+        # This creates enough room for the border and corner radius.
+        padding = self._spacing + 20
+        self._panel_height = max(needed_height + padding, 50)
+        self._panel_width = max(needed_width + padding, 50)
+        self._panel.set_dimensions((self._panel_width, self._panel_height))
 
     # --------------------------------------------------------------
     # Step 3: Center elements vertically + horizontally
@@ -65,10 +58,11 @@ class VBox:
 
         total_height, _ = self._compute_needed_size()
 
-        # Ziehe das hinzugefügte Padding wieder ab für echte Zentrierung
-        available_height = self._panel_height - self._spacing
-        available_width = self._panel_width - self._spacing
+        # We subtract the extra buffer to find the "content box" we just sized
+        available_height = self._panel_height - self._spacing - 20
+        available_width = self._panel_width - self._spacing - 20
 
+        # Initial centering inside that content box
         start_y = (available_height - total_height) / 2 + (self._spacing / 2)
         current_y = start_y
 
@@ -79,7 +73,14 @@ class VBox:
             x = (available_width - width) / 2 + (self._spacing / 2)
 
             elem.anchors = {'left': 'left', 'top': 'top'}
-            elem.set_relative_position((x-self._panel_offset, current_y-self._panel_offset))
+            
+            # The -_panel_offset (6px) shift pushes the content towards the top-left corner.
+            # This compensates for the bottom-right shadow and results in a very tight 
+            # visual margin (approx 1px) against the border, which the user prefers.
+            final_x = x - self._panel_offset
+            final_y = current_y - self._panel_offset
+            
+            elem.set_relative_position((final_x, final_y))
 
             current_y += height + self._spacing
 

@@ -17,8 +17,8 @@ class SettingsModel:
         self._window_width = 1900
         self._window_height = 1000
         self._music = True
-        self._warning_time = 5
-        self._switch_time = 10
+        self._warning_time = 10
+        self._switch_time = 30
         self._ui_scaling = 1.5
         self._game_over_duration = 5.0
         self._second_player = False

@@ -5,8 +5,8 @@ import pygame_gui
 import pygame
 
 from RedLightGreenLight.States.SettingsSubMenu.SettingsModel import SettingsModel
-from RedLightGreenLight.UIElements.VBox import VBox
-from RedLightGreenLight.UIUtil.UIManager import UIManager
+from UIUtils.VBox import VBox
+from UIUtils.UIManager import UIManager
 
 
 class MenuView:
@@ -62,6 +62,7 @@ class MenuView:
 
     def show(self,time_delta)->None:
         pygame.display.set_caption('Menu')
+        self._screen.fill((30, 30, 40))
         self._manager.update(time_delta)
         self._manager.draw_ui(self._screen)
         pygame.display.update()

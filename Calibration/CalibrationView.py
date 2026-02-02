@@ -1,5 +1,7 @@
 import pygame
+import pygame_gui
 from .CalibrationPhase import CalibrationPhase
+from UIUtils.UIManager import UIManager
 
 class CalibrationView:
     """
@@ -18,47 +20,63 @@ class CalibrationView:
         self._COLOR_HIGHLIGHT = (50, 150, 250)
         self._COLOR_BUTTON = (70, 70, 90)
         
+        # UI Manager (Using global UIUtils)
+        self._manager = UIManager(self._screen)
+        
         # Fonts
         pygame.font.init()
         self._font_title = pygame.font.SysFont('Arial', 48, bold=True)
         self._font_text = pygame.font.SysFont('Arial', 32)
         self._font_math = pygame.font.SysFont('Arial', 72, bold=True)
         
-        # Button Rect
-        self._start_btn_rect = pygame.Rect(self._width // 2 - 100, self._height // 2 + 100, 200, 60)
+        # Real Start Button
+        button_width, button_height = 200, 60
+        self._start_button = pygame_gui.elements.UIButton(
+            pygame.Rect((self._width - button_width) // 2, self._height // 2 + 100, button_width, button_height),
+            text="START",
+            manager=self._manager,
+            object_id="#StartButton"
+        )
 
-    def render(self):
+    def render(self, dt=0):
         self._screen.fill(self._COLOR_BG)
         
         phase = self._model.phase
         
         if phase == CalibrationPhase.EXPLANATION:
+            self._start_button.show()
             self._render_explanation()
-        elif phase == CalibrationPhase.RELAXED:
-            self._render_relaxed()
-        elif phase == CalibrationPhase.CONCENTRATED:
-            self._render_concentrated()
-        elif phase == CalibrationPhase.FINISHED:
-            self._render_finished()
-            
+        else:
+            self._start_button.hide()
+            if phase == CalibrationPhase.RELAXED:
+                self._render_relaxed()
+            elif phase == CalibrationPhase.CONCENTRATED:
+                self._render_concentrated()
+            elif phase == CalibrationPhase.FINISHED:
+                self._render_finished()
+        
+        self._manager.update(dt)
+        self._manager.draw_ui(self._screen)
         pygame.display.flip()
 
+    def get_manager(self):
+        return self._manager
+
+    def get_start_button(self):
+        return self._start_button
+
     def _render_explanation(self):
-        self._draw_text("Kalibrierung", self._font_title, self._height // 4)
+        self._draw_text("Willkommen zum Spiel \"Red Light Green Light - EEG\"", self._font_title, self._height // 4)
         
         lines = [
-            "Willkommen zur EEG-Kalibrierung.",
+            "Zunächst wird eine kurze Kalibrierung durchgeführt, diese besteht aus zwei Phasen:",
             "1. Phase: 30s Entspannung (nichts Besonderes denken).",
             "2. Phase: 30s Konzentration (Kopfrechnen).",
-            "Die Daten helfen uns, deine Gehirnaktivität zu verstehen."
+            "Folge den Hinweisen auf dem Bildschirm!"
         ]
         
         for i, line in enumerate(lines):
             self._draw_text(line, self._font_text, self._height // 2 - 50 + i * 40)
-            
-        # Button
-        pygame.draw.rect(self._screen, self._COLOR_BUTTON, self._start_btn_rect, border_radius=10)
-        self._draw_text("START", self._font_text, self._start_btn_rect.centery, color=self._COLOR_TEXT)
 
     def _render_relaxed(self):
         self._draw_text("Phase 1: Entspannung", self._font_title, self._height // 3)
@@ -96,6 +114,3 @@ class CalibrationView:
         surf = font.render(text, True, color)
         rect = surf.get_rect(center=(self._width // 2, y_pos))
         self._screen.blit(surf, rect)
-
-    def is_start_clicked(self, pos):
-        return self._start_btn_rect.collidepoint(pos)

@@ -3,7 +3,7 @@ from __future__ import annotations
 import pygame
 from RedLightGreenLight.States.Game.GameModel import GameModel
 from RedLightGreenLight.States.SettingsSubMenu.SettingsModel import SettingsModel
-from RedLightGreenLight.UIUtil.UIManager import UIManager
+from UIUtils.UIManager import UIManager
 
 
 class GameView:

@@ -3,9 +3,9 @@ from __future__ import annotations
 import pygame_gui
 import pygame
 from RedLightGreenLight.States.SettingsSubMenu.SettingsModel import SettingsModel
-from RedLightGreenLight.UIElements.SliderWithLabel import SliderWithLabel
-from RedLightGreenLight.UIElements.VBox import VBox
-from RedLightGreenLight.UIUtil.UIManager import UIManager
+from UIUtils.SliderWithLabel import SliderWithLabel
+from UIUtils.VBox import VBox
+from UIUtils.UIManager import UIManager
 
 
 class SettingsView:
@@ -41,12 +41,12 @@ class SettingsView:
         slider_height = int(50 * self._settings.get_ui_scaling())
         self._warning_time_slider = SliderWithLabel(manager=self._manager, container=self._vbox.get_panel(),
                                                     width=slider_width, height=slider_height, label_text="Warning time",
-                                                    start_value=self._settings.get_warning_time(), value_range=(0, 25),
+                                                    start_value=self._settings.get_warning_time(), value_range=(0, 60),
                                                     suffix="s")
 
         self._switch_time_slider = SliderWithLabel(manager=self._manager, container=self._vbox.get_panel(),
                                                    width=slider_width, height=slider_height, label_text="Switch time",
-                                                   start_value=self._settings.get_switch_time(), value_range=(0, 25),
+                                                   start_value=self._settings.get_switch_time(), value_range=(0, 60),
                                                    suffix="s")
 
         self._game_over_time_slider = SliderWithLabel(manager=self._manager, container=self._vbox.get_panel(),
@@ -96,6 +96,7 @@ class SettingsView:
 
     def show(self, time_delta) -> None:
         pygame.display.set_caption('Settings')
+        self._screen.fill((30, 30, 40))
         self._manager.update(time_delta)
         self._manager.draw_ui(self._screen)
         pygame.display.update()

@@ -26,6 +26,42 @@ class EEGManager:
         self._latest_data = []
         self._lock = threading.Lock()
 
+        # Mock data state
+        self._mock_data = {"concentrated": [], "relaxed": []}
+        self._mock_mode = "concentrated"
+        self._mock_index = 0
+
+        if self._use_mock:
+            self._load_mock_data()
+
+    def _load_mock_data(self):
+        """Loads experimental data from CSV files for mock mode."""
+        import os
+        base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        paths = {
+            "concentrated": os.path.join(base_path, "TestData", "TestData_raw_concentrated.csv"),
+            "relaxed": os.path.join(base_path, "TestData", "TestData_raw_relaxed.csv")
+        }
+        
+        for mode, path in paths.items():
+            if os.path.exists(path):
+                try:
+                    data = np.loadtxt(path, delimiter=',')
+                    self._mock_data[mode] = data.tolist()
+                    print(f"Loaded mock data for '{mode}': {len(data)} samples.")
+                except Exception as e:
+                    print(f"Error loading mock data from {path}: {e}")
+            else:
+                print(f"Warning: Mock data file not found at {path}")
+
+    def set_mock_mode(self, mode: str):
+        """Sets the active mock data set ('concentrated' or 'relaxed')."""
+        if mode in self._mock_data:
+            with self._lock:
+                self._mock_mode = mode
+                self._mock_index = 0
+            print(f"Mock mode set to: {mode}")
+
     @property
     def is_streaming(self):
         return self._is_streaming
@@ -78,37 +114,31 @@ class EEGManager:
         print("EEG Stream stopped.")
 
     def _acquire_data(self):
-        """Internal loop to fetch data from the device or generate mock data."""
+        """Internal loop to fetch data from the device or iterate mock data samples."""
         num_samples = 1 
         
-        # UnicornPy numerical data handling:
-        # The API provides float data directly if using the right methods.
-        # GetData fills a buffer of floats.
         if not self._use_mock:
-            # According to g.tec, UnicornGetDataSizeSamples is the size in bytes for one scan.
-            # In Python, we often use a buffer that can hold the floats.
-            # However, for simplicity and compatibility with the user's manual mention:
-            # We assume GetData returns numerical values.
             import array
-            # Each scan contains multiple float32 values (EEG, Accel, Gyro, etc.)
-            # We need to know how many floats are in one scan.
-            # UnicornPy.UnicornNumberOfConfiguredChannels gives this.
             receive_buffer = array.array('f', [0.0] * UnicornPy.UnicornNumberOfConfiguredChannels)
         
         while self._is_streaming:
             if self._use_mock:
-                # Generate random EEG-like data (noise + some offset)
-                sample = np.random.normal(0, 10, self._channels).tolist()
+                # Use recorded data if available
+                mode_data = self._mock_data[self._mock_mode]
+                if mode_data:
+                    sample = mode_data[self._mock_index]
+                    self._mock_index = (self._mock_index + 1) % len(mode_data)
+                else:
+                    # Fallback to noise if files failed to load
+                    sample = np.random.normal(0, 10, self._channels).tolist()
+                
                 time.sleep(1.0 / self._sampling_rate)
             else:
-                # Fill receive_buffer with numerical values
-                self._device.GetData(num_samples, receive_buffer, len(receive_buffer) * 4) # 4 bytes per float
-                # We only want the first 8 channels (EEG)
+                self._device.GetData(num_samples, receive_buffer, len(receive_buffer) * 4) 
                 sample = list(receive_buffer[:self._channels])
             
             with self._lock:
                 self._latest_data.append(sample)
-                # Keep buffer manageable if not consumed
                 if len(self._latest_data) > 1000:
                     self._latest_data.pop(0)
 
