@@ -17,7 +17,7 @@ class GameApp:
     def __init__(self):
         pass
 
-    def run(self):
+    def run(self, command_queue=None):
         """
         Main loop of the application.
 
@@ -35,6 +35,7 @@ class GameApp:
         2. Processes inputs (InputManager).
         3. Updates the current state (current_state.update).
         4. Switches the state if a new state is returned.
+        4b. Processes EEG commands if available.
         5. Exits the app when 'QuitState' is reached.
         """
         pygame.init()
@@ -63,6 +64,15 @@ class GameApp:
             clock.tick(60)
             delta_time = clock.get_time() / 1000.0
 
+            # Process EEG Commands
+            if command_queue is not None:
+                while not command_queue.empty():
+                    action, key = command_queue.get_nowait()
+                    if action == "PRESS":
+                        input_manager.inject_key(key)
+                    elif action == "RELEASE":
+                        input_manager.clear_injected_key(key)
+
             keys = input_manager.process_inputs()
             new_state = current_state.update(delta_time,keys)
 
@@ -76,7 +86,6 @@ class GameApp:
 
             elif isinstance(new_state,QuitState):
                 running = False
-
 
 
 

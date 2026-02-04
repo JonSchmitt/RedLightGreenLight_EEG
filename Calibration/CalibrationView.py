@@ -8,11 +8,21 @@ class CalibrationView:
     View for the calibration process. Handles all Pygame rendering.
     Directly accesses the model to retrieve current state for drawing.
     """
-    def __init__(self, screen, model):
-        self._screen = screen
+    def __init__(self, model, screen=None):
         self._model = model
-        self._width = screen.get_width()
-        self._height = screen.get_height()
+        
+        # Initialize screen if not provided
+        if screen is None:
+            if not pygame.get_init():
+                pygame.init()
+            self._screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+            pygame.display.set_caption("EEG Calibration")
+        else:
+            self._screen = screen
+
+        self._width = self._screen.get_width()
+        self._height = self._screen.get_height()
+
         
         # Colors
         self._COLOR_BG = (30, 30, 40)
@@ -101,8 +111,8 @@ class CalibrationView:
         self._draw_text("Kalibrierung abgeschlossen", self._font_title, self._height // 3)
         
         results = [
-            f"Alpha Ratio: {self._model.alpha_ratio:.2f}",
-            f"Beta Ratio: {self._model.beta_ratio:.2f}",
+            f"Th Ch1 (Front): {self._model.threshold_1:.2f} ({'Up' if self._model.dir_1 > 0 else 'Down'})",
+            f"Th Ch8 (Occip): {self._model.threshold_8:.2f} ({'Up' if self._model.dir_8 > 0 else 'Down'})",
             "Drücke eine beliebige Taste zum Fortfahren."
         ]
         

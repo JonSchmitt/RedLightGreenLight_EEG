@@ -5,12 +5,33 @@ from RedLightGreenLight.Inputs.KeysEnum import KEY
 
 class InputManager:
     def __init__(self):
-        pass
+        self._external_keys = []
+
+    def inject_key(self, key: KEY):
+        """Allows external processes/threads to inject keys."""
+        if key not in self._external_keys:
+            self._external_keys.append(key)
+
+    def clear_injected_key(self, key: KEY):
+        """Removes an injected key."""
+        if key in self._external_keys:
+            self._external_keys.remove(key)
 
     def process_inputs(self)->list[list[KEY]]:
         inputs = []
-        inputs.append(self._process_pressed_keys())
-        inputs.append(self._process_keydown())
+        
+        # Physical keys
+        pressed = self._process_pressed_keys()
+        keydown = self._process_keydown()
+        
+        # Merge with external keys
+        # for process_pressed_keys style (continuous)
+        pressed.extend(self._external_keys)
+        # remove duplicates
+        pressed = list(set(pressed))
+        
+        inputs.append(pressed)
+        inputs.append(keydown)
         return inputs
 
     def _process_pressed_keys(self)->list[KEY]:

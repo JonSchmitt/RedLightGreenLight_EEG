@@ -37,11 +37,17 @@ def test_signal_processor():
     concentrated_data = generate_synthetic_eeg(duration, fs, frequency=25, amplitude=15.0)
 
     print("\nPhase 1: Individual Band Power Checks")
-    alpha_power_relaxed = processor.calculate_band_power(relaxed_data, (8, 13))
-    alpha_power_concentrated = processor.calculate_band_power(concentrated_data, (8, 13))
+    # Use processor's internal bands to ensure consistency
+    alpha_rel_vec = np.array(processor.calculate_band_power(relaxed_data, processor.alpha_band))
+    alpha_con_vec = np.array(processor.calculate_band_power(concentrated_data, processor.alpha_band))
     
-    beta_power_relaxed = processor.calculate_band_power(relaxed_data, (14, 30))
-    beta_power_concentrated = processor.calculate_band_power(concentrated_data, (14, 30))
+    beta_rel_vec = np.array(processor.calculate_band_power(relaxed_data, processor.beta_band))
+    beta_con_vec = np.array(processor.calculate_band_power(concentrated_data, processor.beta_band))
+
+    alpha_power_relaxed = np.mean(alpha_rel_vec)
+    alpha_power_concentrated = np.mean(alpha_con_vec)
+    beta_power_relaxed = np.mean(beta_rel_vec)
+    beta_power_concentrated = np.mean(beta_con_vec)
 
     print(f"Alpha Power (Relaxed): {alpha_power_relaxed:.4f}")
     print(f"Alpha Power (Concentrated): {alpha_power_concentrated:.4f}")
@@ -53,16 +59,28 @@ def test_signal_processor():
     print("Individual checks passed!")
 
     print("\nPhase 2: Ratio Calculation Check")
-    alpha_ratio, beta_ratio = processor.process_calibration_data(relaxed_data, concentrated_data)
+    # Test the new centralized ratio calculation
+    ratios = processor.calculate_ratios(relaxed_data)
     
-    print(f"Calculated Alpha Ratio: {alpha_ratio:.4f}")
-    print(f"Calculated Beta Ratio: {beta_ratio:.4f}")
+    # Mathematical consistency check: ratios should match per-channel power ratios
+    expected_ratios = beta_rel_vec / alpha_rel_vec
+    
+    assert np.allclose(ratios, expected_ratios, atol=1e-7), "Ratio calculation doesn't match manual check"
+    
+    # Calibration ratios check (Concentrated / Relaxed)
+    # Manual calculation to verify mathematical logic
+    alpha_ratios = alpha_con_vec / alpha_rel_vec
+    beta_ratios = beta_con_vec / beta_rel_vec
+    
+    print(f"Calculated Alpha Ratio (Mean): {np.mean(alpha_ratios):.4f}")
+    print(f"Calculated Beta Ratio (Mean): {np.mean(beta_ratios):.4f}")
 
-    expected_alpha_ratio = alpha_power_concentrated / alpha_power_relaxed
-    expected_beta_ratio = beta_power_concentrated / beta_power_relaxed
+    assert np.all(alpha_ratios < 1.0), "In this test, Alpha should decrease during concentration"
+    assert np.all(beta_ratios > 1.0), "In this test, Beta should increase during concentration"
 
-    assert abs(alpha_ratio - expected_alpha_ratio) < 1e-5, f"Alpha ratio mismatch: {alpha_ratio} vs {expected_alpha_ratio}"
-    assert abs(beta_ratio - expected_beta_ratio) < 1e-5, f"Beta ratio mismatch: {beta_ratio} vs {expected_beta_ratio}"
+
+    
+    print("Ratio consistency checks passed!")
     
     print("Ratio checks passed!")
     print("\nSUCCESS: SignalProcessor is working correctly.")

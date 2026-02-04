@@ -20,7 +20,7 @@ class SettingsModel:
         self._warning_time = 10
         self._switch_time = 30
         self._ui_scaling = 1.5
-        self._game_over_duration = 5.0
+        self._game_over_duration = 5
         self._second_player = False
         self._music_fade_out_time = 1.5
         self._music_fade_in_time = 2.0

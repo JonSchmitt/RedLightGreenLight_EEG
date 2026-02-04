@@ -51,7 +51,7 @@ class SettingsView:
 
         self._game_over_time_slider = SliderWithLabel(manager=self._manager, container=self._vbox.get_panel(),
                                                     width=slider_width, height=slider_height, label_text="Game Over Duration",
-                                                    start_value=self._settings.get_warning_time(), value_range=(0, 25),
+                                                    start_value=self._settings.get_game_over_duration(), value_range=(0, 25),
                                                     suffix="s")
 
         self._second_player_checkbox = pygame_gui.elements.UICheckBox(pygame.Rect(0, 0, checkbox_width, checkbox_height),

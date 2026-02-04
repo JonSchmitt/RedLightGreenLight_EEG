@@ -44,20 +44,26 @@ class CalibrationController:
         for event in pygame.event.get():
             # Pass to UI Manager
             self._view.get_manager().process_events(event)
-            
             if event.type == pygame.QUIT:
-                self._running = False
-                pygame.quit()
-                sys.exit()
-                
+                self._handle_quit_event()
             if event.type == pygame_gui.UI_BUTTON_PRESSED:
-                if event.ui_element == self._view.get_start_button():
-                    self._eeg_manager.set_mock_mode("relaxed")
-                    self._model.start_phase(CalibrationPhase.RELAXED)
-                        
+                self._handle_ui_events(event)
             if event.type == pygame.KEYDOWN:
-                if self._model.phase == CalibrationPhase.FINISHED:
-                    self._running = False
+                self._handle_key_events()
+
+    def _handle_quit_event(self):
+        self._running = False
+        pygame.quit()
+        sys.exit()
+
+    def _handle_ui_events(self,event):
+        if event.ui_element == self._view.get_start_button():
+            self._eeg_manager.set_mock_mode("relaxed")
+            self._model.start_phase(CalibrationPhase.RELAXED)
+
+    def _handle_key_events(self):
+        if self._model.phase == CalibrationPhase.FINISHED:
+            self._running = False
 
     def _update(self):
         # Collect data if in active phase
@@ -69,28 +75,21 @@ class CalibrationController:
             self._model.check_math_task_update()
             
             # Check for phase transitions
-            if self._model.is_phase_over():
-                if self._model.phase == CalibrationPhase.RELAXED:
-                    self._eeg_manager.set_mock_mode("concentrated")
-                    self._model.start_phase(CalibrationPhase.CONCENTRATED)
-                elif self._model.phase == CalibrationPhase.CONCENTRATED:
-                    self._calculate_results()
-                    self._model.phase = CalibrationPhase.FINISHED
+            self._update_calibration_phase()
+
+    def _update_calibration_phase(self):
+        if self._model.is_phase_over():
+            if self._model.phase == CalibrationPhase.RELAXED:
+                self._eeg_manager.set_mock_mode("concentrated")
+                self._model.start_phase(CalibrationPhase.CONCENTRATED)
+            elif self._model.phase == CalibrationPhase.CONCENTRATED:
+                self._calculate_results()
+                self._model.phase = CalibrationPhase.FINISHED
 
     def _calculate_results(self):
-        import numpy as np
-        print("Calculating thresholds per channel...")
-        alphas, betas = self._signal_processor.process_calibration_data(
-            self._model.relaxed_data, 
-            self._model.concentrated_data
-        )
-        
-        # Output ratios for each channel
-        for i, (a, b) in enumerate(zip(alphas, betas)):
-            print(f"Channel {i+1} -> Alpha Ratio: {a:.4f}, Beta Ratio: {b:.4f}")
-
-        # Use averages for the model and overall feedback
-        self._model.alpha_ratio = float(np.mean(alphas)) if alphas else 1.0
-        self._model.beta_ratio = float(np.mean(betas)) if betas else 1.0
-        
-        print(f"Overall Average Thresholds -> Alpha: {self._model.alpha_ratio:.4f}, Beta: {self._model.beta_ratio:.4f}")
+        """
+        Calculates calibration results by delegating to the model.
+        The results are used to set thresholds and margins for BCI control.
+        """
+        print("Calculating thresholds for frontal (Ch 1) and occipital (Ch 8) electrodes...")
+        self._model.calculate_calibration_results(self._signal_processor)

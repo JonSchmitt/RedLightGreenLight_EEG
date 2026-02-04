@@ -12,32 +12,39 @@ from Calibration.CalibrationController import CalibrationController
 class CalibrationApp:
     """
     Main entry point for the standalone Calibration Application.
+    Coordinates the calibration process and returns the calculated thresholds.
     """
-    def __init__(self):
-        # Pygame might be initialized already if called from Main.py
-        if not pygame.get_init():
-            pygame.init()
-            
-        # Create a fullscreen window
-        self._screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-        pygame.display.set_caption("EEG Calibration")
+
+    def __init__(self, screen=None):
+        """
+        Initializes the Calibration Application.
         
+        Args:
+            screen (pygame.Surface, optional): An existing pygame surface to use. 
+                                              If None, a new fullscreen window is created.
+        """
         self._model = CalibrationModel()
-        self._view = CalibrationView(self._screen, self._model)
+        self._view = CalibrationView(self._model, screen=screen)
         self._controller = CalibrationController(self._model, self._view)
 
     def run(self):
-        self._controller.run()
-        
-        # Retrieve results before closing
-        alpha = self._model.alpha_ratio
-        beta = self._model.beta_ratio
-        
-        print(f"Calibration Results -> Alpha: {alpha}, Beta: {beta}")
-        
-        # Return results to caller
-        return alpha, beta
+        """
+        Starts the calibration loop and returns the results once finished.
 
+        Returns:
+            tuple: (threshold_1, dir_1, margin_1, threshold_8, dir_8, margin_8)
+        """
+        self._controller.run()
+
+
+        m = self._model
+        results = (m.threshold_1, m.dir_1, m.margin_1, m.threshold_8, m.dir_8, m.margin_8)
+        
+        print(f"Calibration Results -> Ch1: {results[0]:.4f} ({results[1]}), Ch8: {results[3]:.4f} ({results[4]})")
+
+        return results
+
+# FOR TESTING ONLY
 if __name__ == "__main__":
     app = CalibrationApp()
     app.run()

@@ -64,22 +64,31 @@ class GameController:
 
 
 
-    def _decide_next_state(self,keys_pressed:list[list[KEY]])->State:
-        """Checks for return to Menu or Quit."""
+    def _decide_next_state(self, keys_pressed: list[list[KEY]]) -> State:
+        """
+        Determines the next state of the application based on player input.
+
+        Args:
+            keys_pressed (list[list[KEY]]): Current key input state.
+
+        Returns:
+            State: The next state (Game, Menu, or Quit).
+        """
         results = self._handle_events(keys_pressed)
         if self._QUIT in results:
             return StateFactory.create_quit_state()
         if self._MENU in results:
-            return StateFactory.create_menu_state(self._view.get_screen(),self._settings_model,self._music_manager)
-        return StateFactory.create_game_state(self._view.get_screen(),self._settings_model,self._music_manager)
+            return StateFactory.create_menu_state(self._view.get_screen(), self._settings_model, self._music_manager)
+        return StateFactory.create_game_state(self._view.get_screen(), self._settings_model, self._music_manager)
 
-    def _handle_keyboard_press_event(self, keys_pressed:list[list[KEY]], results:list[str])->None:
+    def _handle_keyboard_press_event(self, keys_pressed: list[list[KEY]], results: list[str]) -> None:
+        """Processes keyboard events (e.g., ESC for menu)."""
         keys_down = keys_pressed[1]
         if KEY.ESC in keys_down:
             results.append(self._MENU)
 
-
-    def _handle_events(self,keys_pressed:list[list[KEY]]):
+    def _handle_events(self, keys_pressed: list[list[KEY]]) -> list[str]:
+        """Collects application-level events (QUIT, MENU)."""
         results = []
         self._handle_keyboard_press_event(keys_pressed, results)
         for event in pygame.event.get():
@@ -88,7 +97,9 @@ class GameController:
         return results
 
     def update_settings(self):
+        """Notifies the controller that settings have changed."""
         self._game_model.update_settings(self._settings_model.is_second_player())
+
 
 
 

@@ -63,8 +63,14 @@ class EEGManager:
             print(f"Mock mode set to: {mode}")
 
     @property
+    def mock_mode(self):
+        return self._use_mock
+
+    @property
     def is_streaming(self):
         return self._is_streaming
+
+
 
     @property
     def sampling_rate(self):

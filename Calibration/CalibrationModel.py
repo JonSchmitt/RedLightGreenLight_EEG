@@ -1,6 +1,9 @@
 import time
+import numpy as np
 from .CalibrationPhase import CalibrationPhase
 from Tools.MathTaskGenerator import MathTaskGenerator
+from EEG.SignalProcessor import SignalProcessor
+
 
 class CalibrationModel:
     """
@@ -16,12 +19,46 @@ class CalibrationModel:
         self._relaxed_data = []
         self._concentrated_data = []
         
-        # Results
-        self._alpha_ratio = 1.0
-        self._beta_ratio = 1.0
+        # Results (Independent thresholds for Ch 1 and Ch 8)
+        self._threshold_1 = 1.0
+        self._dir_1 = 1 # 1: Concentration > Relaxed, -1: Concentration < Relaxed
+        self._threshold_8 = 1.0
+        self._dir_8 = 1
+        self._margin_1 = 0.01
+        self._margin_8 = 0.01
         
         # Math tasks (Centralized Logic)
         self._math_generator = MathTaskGenerator(interval=5.0)
+
+    @property
+    def threshold_1(self): return self._threshold_1
+    @threshold_1.setter
+    def threshold_1(self, v): self._threshold_1 = v
+
+    @property
+    def dir_1(self): return self._dir_1
+    @dir_1.setter
+    def dir_1(self, v): self._dir_1 = v
+
+    @property
+    def threshold_8(self): return self._threshold_8
+    @threshold_8.setter
+    def threshold_8(self, v): self._threshold_8 = v
+
+    @property
+    def dir_8(self): return self._dir_8
+    @dir_8.setter
+    def dir_8(self, v): self._dir_8 = v
+
+    @property
+    def margin_1(self): return self._margin_1
+    @margin_1.setter
+    def margin_1(self, v): self._margin_1 = v
+
+    @property
+    def margin_8(self): return self._margin_8
+    @margin_8.setter
+    def margin_8(self, v): self._margin_8 = v
 
     @property
     def phase(self):
@@ -32,20 +69,20 @@ class CalibrationModel:
         self._phase = value
 
     @property
-    def alpha_ratio(self):
-        return self._alpha_ratio
+    def concentration_threshold(self):
+        return self._concentration_threshold
 
-    @alpha_ratio.setter
-    def alpha_ratio(self, value):
-        self._alpha_ratio = value
+    @concentration_threshold.setter
+    def concentration_threshold(self, value):
+        self._concentration_threshold = value
 
     @property
-    def beta_ratio(self):
-        return self._beta_ratio
+    def concentration_margin(self):
+        return self._concentration_margin
 
-    @beta_ratio.setter
-    def beta_ratio(self, value):
-        self._beta_ratio = value
+    @concentration_margin.setter
+    def concentration_margin(self, value):
+        self._concentration_margin = value
 
     @property
     def current_math_task(self):
@@ -57,6 +94,14 @@ class CalibrationModel:
         if phase == CalibrationPhase.CONCENTRATED:
             self._math_generator.reset()
             self._math_generator.update()
+
+    @property
+    def is_concentration_greater(self):
+        return self._is_concentration_greater
+
+    @is_concentration_greater.setter
+    def is_concentration_greater(self, value):
+        self._is_concentration_greater = value
 
     def get_remaining_time(self):
         if self._phase in [CalibrationPhase.RELAXED, CalibrationPhase.CONCENTRATED]:
@@ -82,9 +127,39 @@ class CalibrationModel:
             self._concentrated_data.extend(data)
 
     @property
-    def relaxed_data(self):
-        return self._relaxed_data
-
-    @property
     def concentrated_data(self):
         return self._concentrated_data
+
+    def calculate_calibration_results(self, signal_processor: SignalProcessor):
+        """
+        Calculates thresholds, directions, and margins based on collected calibration data.
+        
+        Args:
+            signal_processor (SignalProcessor): The processor used for spectral analysis.
+        """
+        if not self._relaxed_data or not self._concentrated_data:
+            print("Warning: Missing calibration data for calculation.")
+            return
+
+        # Calculate Beta/Alpha ratios for both phases for all channels
+        ratios_rel = signal_processor.calculate_ratios(self._relaxed_data)
+        ratios_con = signal_processor.calculate_ratios(self._concentrated_data)
+        
+        # Channel 1: Frontal (index 0)
+        avg_rel_1 = float(ratios_rel[0])
+        avg_con_1 = float(ratios_con[0])
+        self._threshold_1 = (avg_rel_1 + avg_con_1) / 2.0
+        self._dir_1 = 1 if avg_con_1 > avg_rel_1 else -1
+        self._margin_1 = abs(avg_con_1 - avg_rel_1) * 0.1
+
+        # Channel 8: Occipital (index 7)
+        avg_rel_8 = float(ratios_rel[7])
+        avg_con_8 = float(ratios_con[7])
+        self._threshold_8 = (avg_rel_8 + avg_con_8) / 2.0
+        self._dir_8 = 1 if avg_con_8 > avg_rel_8 else -1
+        self._margin_8 = abs(avg_con_8 - avg_rel_8) * 0.1
+        
+        print(f"Calibration Results calculated in Model:")
+        print(f"  Ch 1 (Frontal) -> Th: {self._threshold_1:.4f}, Dir: {self._dir_1}, Margin: {self._margin_1:.4f}")
+        print(f"  Ch 8 (Occipital) -> Th: {self._threshold_8:.4f}, Dir: {self._dir_8}, Margin: {self._margin_8:.4f}")
+
