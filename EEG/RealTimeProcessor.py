@@ -4,6 +4,7 @@ from multiprocessing import Process, Queue
 from collections import deque
 from EEG.EEGManager import EEGManager
 from EEG.SignalProcessor import SignalProcessor
+from Tools.DataLogger import DataLogger
 from RedLightGreenLight.Inputs.KeysEnum import KEY
 
 
@@ -37,6 +38,7 @@ class RealTimeProcessor(Process):
         """Main process loop."""
         eeg_manager = EEGManager()
         signal_processor = SignalProcessor(sampling_rate=self._sampling_rate)
+        data_logger = DataLogger(session_type="session")
         
         print(f"RealTimeProcessor (Dual-Channel) started.")
         print(f"  Ch1: Th={self._th1:.4f}, Dir={self._dir1}, Margin={self._m1:.4f}")
@@ -49,20 +51,21 @@ class RealTimeProcessor(Process):
         
         try:
             while self._running:
-                if self._acquire_data(eeg_manager):
+                if self._acquire_data(eeg_manager, data_logger):
                     if len(self._buffer) >= self._window_size:
                         score1, score8 = self._calculate_scores(signal_processor)
-                        self._process_logic(score1, score8)
+                        self._process_logic(score1, score8, data_logger)
                 
                 if eeg_manager.mock_mode:
                     # Sleep briefly to avoid high CPU usage
                     time.sleep(0.004)
                 
         finally:
-            eeg_manager.stop_stream()
+            eeg_manager.disconnect()
+            data_logger.stop()
             print("RealTimeProcessor: Stream stopped.")
 
-    def _acquire_data(self, eeg_manager):
+    def _acquire_data(self, eeg_manager, data_logger):
         """
         Fetches new samples and maintains the sliding window in the buffer.
      
@@ -75,6 +78,16 @@ class RealTimeProcessor(Process):
         new_data = eeg_manager.get_new_data()
         if new_data:
             self._buffer.extend(new_data)
+            
+            # Log raw data
+            import time
+            current_time = time.time()
+            for sample in new_data:
+                row = {"Timestamp": current_time, "Type": "RAW"}
+                for i, val in enumerate(sample):
+                    row[f"Ch{i+1}"] = val
+                data_logger.log(row)
+
             return True
         return False
 
@@ -98,7 +111,7 @@ class RealTimeProcessor(Process):
         return float(ratios[0]), float(ratios[7])
 
 
-    def _process_logic(self, score1, score8):
+    def _process_logic(self, score1, score8, data_logger):
         """Dual-Channel Agreement Hysteresis Logic."""
         # Concentration checks
         # If dir=1: current > th + m. If dir=-1: current < th - m.
@@ -114,6 +127,18 @@ class RealTimeProcessor(Process):
         # Dual Agreement
         is_dual_concentrated = is_con1 and is_con8
         is_any_relaxed = is_rel1 or is_rel8
+
+        # Log Logic State
+        import time
+        data_logger.log({
+            "Timestamp": time.time(),
+            "Type": "LOGIC",
+            "Score1": score1, "Score8": score8,
+            "IsCon1": is_con1, "IsCon8": is_con8,
+            "IsRel1": is_rel1, "IsRel8": is_rel8,
+            "DualCon": is_dual_concentrated, "AnyRel": is_any_relaxed,
+            "State": "MOVING" if self._last_state else "IDLE"
+        })
 
         if not self._last_state: # currently in IDLE
             if is_dual_concentrated:

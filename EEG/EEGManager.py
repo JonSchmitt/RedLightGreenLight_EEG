@@ -9,6 +9,10 @@ except ImportError:
     _UNICORN_AVAILABLE = False
     print("UnicornPy not found. EEGManager will run in MOCK mode.")
 
+"""
+Refer to https://github.com/unicorn-bi/Unicorn-Hybrid-Black-Windows-APIs/blob/main/python-api/unicorn-python-api-reference.md
+for documentation of the Unicorn Python API used.
+"""
 class EEGManager:
     """
     Manages connection and data acquisition from the Unicorn Hybrid Black headset.
@@ -25,6 +29,10 @@ class EEGManager:
         # Buffer for latest samples
         self._latest_data = []
         self._lock = threading.Lock()
+
+        # API tracking
+        self._eeg_indices = []
+        self._num_acquired_channels = 0
 
         # Mock data state
         self._mock_data = {"concentrated": [], "relaxed": []}
@@ -70,8 +78,6 @@ class EEGManager:
     def is_streaming(self):
         return self._is_streaming
 
-
-
     @property
     def sampling_rate(self):
         return self._sampling_rate
@@ -86,13 +92,14 @@ class EEGManager:
             return True
         
         try:
-            device_count, serial_numbers = UnicornPy.GetAvailableDevices()
-            if device_count == 0:
+            # discoverPairedDevicesOnly = True for faster connection
+            serial_numbers = UnicornPy.GetAvailableDevices(True)
+            if not serial_numbers:
                 print("No Unicorn devices found.")
                 return False
             
-            self._device = UnicornPy.Unicorn(serial_numbers[0])
-            print(f"Connected to Unicorn: {serial_numbers[0]}")
+            self._device = UnicornPy.Unicorn("UN-2023.03.08")
+            print(f"Connected to Unicorn: UN-2023.03.08")
             return True
         except Exception as e:
             print(f"Error connecting to Unicorn: {e}")
@@ -102,10 +109,32 @@ class EEGManager:
         if self._is_streaming:
             return
         
-        self._is_streaming = True
         if not self._use_mock and self._device:
-            self._device.StartAcquisition(False)
-            
+            try:
+                # Ensure EEG channels are enabled in configuration
+                config = self._device.GetConfiguration()
+                eeg_names = [f"EEG {i+1}" for i in range(8)]
+                
+                changed = False
+                for channel in config.Channels:
+                    if channel.Name in eeg_names and not channel.Enabled:
+                        channel.Enabled = True
+                        changed = True
+                
+                if changed:
+                    self._device.SetConfiguration(config)
+                    print("Updated amplifier configuration to enable EEG channels.")
+
+                # Initialize acquisition details
+                self._num_acquired_channels = self._device.GetNumberOfAcquiredChannels()
+                self._eeg_indices = [self._device.GetChannelIndex(name) for name in eeg_names]
+                
+                self._device.StartAcquisition(False)
+            except Exception as e:
+                print(f"Error starting hardware acquisition: {e}")
+                return
+
+        self._is_streaming = True
         self._data_thread = threading.Thread(target=self._acquire_data, daemon=True)
         self._data_thread.start()
         print("EEG Stream started.")
@@ -124,8 +153,10 @@ class EEGManager:
         num_samples = 1 
         
         if not self._use_mock:
-            import array
-            receive_buffer = array.array('f', [0.0] * UnicornPy.UnicornNumberOfConfiguredChannels)
+            # GetData expects a bytearray. Length is scans * channels * 4 (bytes per float)
+            # destinationBufferLength argument is the number of floats.
+            buffer_length_floats = num_samples * self._num_acquired_channels
+            receive_buffer = bytearray(buffer_length_floats * 4)
         
         while self._is_streaming:
             if self._use_mock:
@@ -140,8 +171,15 @@ class EEGManager:
                 
                 time.sleep(1.0 / self._sampling_rate)
             else:
-                self._device.GetData(num_samples, receive_buffer, len(receive_buffer) * 4) 
-                sample = list(receive_buffer[:self._channels])
+                try:
+                    self._device.GetData(num_samples, receive_buffer, buffer_length_floats) 
+                    # Convert bytearray back to float32 array
+                    data_array = np.frombuffer(receive_buffer, dtype=np.float32)
+                    # Extract only the EEG channels we need using pre-calculated indices
+                    sample = [float(data_array[idx]) for idx in self._eeg_indices]
+                except Exception as e:
+                    print(f"Data acquisition error: {e}")
+                    break
             
             with self._lock:
                 self._latest_data.append(sample)
@@ -155,7 +193,13 @@ class EEGManager:
             self._latest_data = []
             return data
 
-    def __del__(self):
+    def disconnect(self):
+        """Stops the stream and disconnects from the device."""
         self.stop_stream()
         if self._device:
             del self._device
+            self._device = None
+            print("Disconnected from Unicorn.")
+
+    def __del__(self):
+        self.disconnect()
