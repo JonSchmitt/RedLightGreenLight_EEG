@@ -46,10 +46,15 @@ class SignalProcessor:
         # Apply filter (causal lfilter for consistency between calibration and real-time)
         filtered_data = lfilter(b, a, data_np, axis=0)
         
-        # Calculate spectral magnitude Mean (to be window-length independent)
+        # Apply Hanning window to reduce spectral leakage
+        # This tapers the signal at the edges to 0, preventing "jumps" that look like high frequencies (Beta)
         N = len(filtered_data)
+        window = np.hanning(N)[:, None] # Create window and unnecessary dimension for broadcasting
+        windowed_data = filtered_data * window
+        
+        # Calculate spectral magnitude Mean (to be window-length independent)
         freqs = np.fft.rfftfreq(N, 1/self._sampling_rate)
-        fft_mags = np.abs(np.fft.rfft(filtered_data, axis=0)) / N # Normalize by N
+        fft_mags = np.abs(np.fft.rfft(windowed_data, axis=0)) / N # Normalize by N
         
         # Mask for the relevant frequency bins
         mask = (freqs >= band[0]) & (freqs <= band[1])

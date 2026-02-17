@@ -111,9 +111,9 @@ class CalibrationView:
         self._draw_text("Kalibrierung abgeschlossen", self._font_title, self._height // 3)
         
         results = [
-            f"Th Ch1 (Front): {self._model.threshold_1:.2f} ({'Up' if self._model.dir_1 > 0 else 'Down'})",
-            f"Th Ch8 (Occip): {self._model.threshold_8:.2f} ({'Up' if self._model.dir_8 > 0 else 'Down'})",
-            "Drücke eine beliebige Taste zum Fortfahren."
+            # f"Th Ch1 (Front): {self._model.threshold_1:.2f} ({'Up' if self._model.dir_1 > 0 else 'Down'})",
+            # f"Th Ch8 (Occip): {self._model.threshold_8:.2f} ({'Up' if self._model.dir_8 > 0 else 'Down'})",
+            # "Drücke eine beliebige Taste zum Fortfahren."
         ]
         
         for i, res in enumerate(results):
