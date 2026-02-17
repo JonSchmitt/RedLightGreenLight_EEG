@@ -11,16 +11,12 @@ from RedLightGreenLight.Inputs.KeysEnum import KEY
 class RealTimeProcessor(Process):
     """
     Handles real-time EEG processing in a separate process.
-    Uses Dual-Channel Agreement with independent thresholds and margins.
+    Uses Single Metric: Frontal Beta (Ch1) / Occipital Alpha (Ch8).
     """
-    def __init__(self, th1, dir1, m1, th8, dir8, m8, command_queue, sampling_rate=250):
+    def __init__(self, threshold_ratio, margin_ratio, command_queue, sampling_rate=250):
         super().__init__(daemon=True)
-        self._th1 = th1     # Threshold Channel 1
-        self._dir1 = dir1   # Direction Channel 1
-        self._m1 = m1       # Margin Channel 1
-        self._th8 = th8     # Threshold Channel 8
-        self._dir8 = dir8   # Direction Channel 8
-        self._m8 = m8       # Margin Channel 8
+        self._threshold = threshold_ratio
+        self._margin = margin_ratio
         self._command_queue = command_queue
         self._sampling_rate = sampling_rate
         
@@ -40,9 +36,8 @@ class RealTimeProcessor(Process):
         signal_processor = SignalProcessor(sampling_rate=self._sampling_rate)
         data_logger = DataLogger(session_type="session")
         
-        print(f"RealTimeProcessor (Dual-Channel) started.")
-        print(f"  Ch1: Th={self._th1:.4f}, Dir={self._dir1}, Margin={self._m1:.4f}")
-        print(f"  Ch8: Th={self._th8:.4f}, Dir={self._dir8}, Margin={self._m8:.4f}")
+        print(f"RealTimeProcessor (Single Metric) started.")
+        print(f"  Ratio Threshold: {self._threshold:.4f}, Margin: {self._margin:.4f}")
         
         if not eeg_manager.connect():
             print("RealTimeProcessor: Failed to connect to EEG. Running in Mock mode.")
@@ -53,8 +48,8 @@ class RealTimeProcessor(Process):
             while self._running:
                 if self._acquire_data(eeg_manager, data_logger):
                     if len(self._buffer) >= self._window_size:
-                        score1, score8 = self._calculate_scores(signal_processor)
-                        self._process_logic(score1, score8, data_logger)
+                        current_ratio = self._calculate_ratio(signal_processor)
+                        self._process_logic(current_ratio, data_logger)
                 
                 if eeg_manager.mock_mode:
                     # Sleep briefly to avoid high CPU usage
@@ -68,12 +63,6 @@ class RealTimeProcessor(Process):
     def _acquire_data(self, eeg_manager, data_logger):
         """
         Fetches new samples and maintains the sliding window in the buffer.
-     
-        Args:
-            eeg_manager (EEGManager): The EEG manager providing data.
-            
-        Returns:
-            bool: True if new data was successfully acquired and added to the buffer, False otherwise.
         """
         new_data = eeg_manager.get_new_data()
         if new_data:
@@ -91,65 +80,66 @@ class RealTimeProcessor(Process):
             return True
         return False
 
-    def _calculate_scores(self, signal_processor):
+    def _calculate_ratio(self, signal_processor):
         """
-        Calculates independent Beta/Alpha ratios for Ch 1 and Ch 8.
+        Calculates Ratio = Beta(Ch1) / Alpha(Ch8).
         
         Args:
             signal_processor (SignalProcessor): The processor for spectral analysis.
 
         Returns:
-            tuple: (score1, score8) as floats.
+            float: The calculated ratio.
         """
         # Convert deque to array for processing
         data_window = np.array(self._buffer)
         
-        # Calculate ratios for all channels
-        ratios = signal_processor.calculate_ratios(data_window)
+        # Calculate Band Powers
+        alpha_powers = np.array(signal_processor.calculate_band_power(data_window, signal_processor.alpha_band))
+        beta_powers = np.array(signal_processor.calculate_band_power(data_window, signal_processor.beta_band))
         
-        # Ch 1 (index 0), Ch 8 (index 7)
-        return float(ratios[0]), float(ratios[7])
-
-
-    def _process_logic(self, score1, score8, data_logger):
-        """Dual-Channel Agreement Hysteresis Logic."""
-        # Concentration checks
-        # If dir=1: current > th + m. If dir=-1: current < th - m.
-        # Generalized: (current - th) * dir > m
-        is_con1 = (score1 - self._th1) * self._dir1 > self._m1
-        is_con8 = (score8 - self._th8) * self._dir8 > self._m8
+        # Ch1 (Frontal) is index 0 -> Use Beta
+        beta_front = beta_powers[0]
         
-        # Relaxation checks (for stopping move)
-        # Generalized: (th - current) * dir > m
-        is_rel1 = (self._th1 - score1) * self._dir1 > self._m1
-        is_rel8 = (self._th8 - score8) * self._dir8 > self._m8
+        # Ch8 (Occipital) is index 7 -> Use Alpha
+        alpha_back = alpha_powers[7]
+        
+        # Avoid division by zero
+        if alpha_back == 0: alpha_back = 0.0001
+        
+        return beta_front / alpha_back
 
-        # Dual Agreement
-        is_dual_concentrated = is_con1 and is_con8
-        is_any_relaxed = is_rel1 or is_rel8
+
+    def _process_logic(self, ratio, data_logger):
+        """Single Metric Hysteresis Logic."""
+        
+        # Concentration Check (Move): Ratio > Threshold + Margin
+        is_concentrated = ratio > (self._threshold + self._margin)
+        
+        # Relaxation Check (Stop): Ratio < Threshold - Margin
+        is_relaxed = ratio < (self._threshold - self._margin)
 
         # Log Logic State
         import time
         data_logger.log({
             "Timestamp": time.time(),
             "Type": "LOGIC",
-            "Score1": score1, "Score8": score8,
-            "IsCon1": is_con1, "IsCon8": is_con8,
-            "IsRel1": is_rel1, "IsRel8": is_rel8,
-            "DualCon": is_dual_concentrated, "AnyRel": is_any_relaxed,
+            "Ratio": ratio,
+            "Threshold": self._threshold,
+            "IsConcentrated": is_concentrated, 
+            "IsRelaxed": is_relaxed,
             "State": "MOVING" if self._last_state else "IDLE"
         })
 
         if not self._last_state: # currently in IDLE
-            if is_dual_concentrated:
+            if is_concentrated:
                 self._last_state = True
                 self._send_command("PRESS", KEY.SPACE)
-                print(f"BCI: MOVE! (Scores: {score1:.3f}, {score8:.3f})")
+                print(f"BCI: MOVE! (Ratio: {ratio:.3f})")
         else: # currently in MOVING
-            if is_any_relaxed:
+            if is_relaxed:
                 self._last_state = False
                 self._send_command("RELEASE", KEY.SPACE)
-                print(f"BCI: IDLE. (Rel triggered: Ch1={is_rel1}, Ch8={is_rel8})")
+                print(f"BCI: IDLE. (Ratio: {ratio:.3f})")
 
     def _send_command(self, action, key):
         self._command_queue.put((action, key))

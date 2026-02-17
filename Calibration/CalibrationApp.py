@@ -38,9 +38,9 @@ class CalibrationApp:
 
 
         m = self._model
-        results = (m.threshold_1, m.dir_1, m.margin_1, m.threshold_8, m.dir_8, m.margin_8)
+        results = (m.threshold_ratio, m.margin_ratio)
         
-        print(f"Calibration Results -> Ch1: {results[0]:.4f} ({results[1]}), Ch8: {results[3]:.4f} ({results[4]})")
+        print(f"Calibration Results -> Ratio Threshold: {results[0]:.4f}, Margin: {results[1]:.4f}")
 
         return results
 

@@ -115,7 +115,6 @@ class CalibrationController:
         m = self._model
         results_text = (
             f"Calibration Results:\n"
-            f"Ch1 (Frontal): Th={m.threshold_1:.4f}, Dir={m.dir_1}, Margin={m.margin_1:.4f}\n"
-            f"Ch8 (Occipital): Th={m.threshold_8:.4f}, Dir={m.dir_8}, Margin={m.margin_8:.4f}\n"
+            f"Ratio (Beta_Front/Alpha_Back): Th={m.threshold_ratio:.4f}, Margin={m.margin_ratio:.4f}\n"
         )
         self._data_logger.save_metadata(results_text)

@@ -9,56 +9,31 @@ class CalibrationModel:
     """
     Model for the calibration process. Manages timestamps, data buffers, 
     and calculation results.
+    Refactored to use a SINGLE METRIC: Ratio = Frontal Beta / Occipital Alpha.
     """
     def __init__(self):
         self._phase = CalibrationPhase.EXPLANATION
         self._start_time = 0
         self._phase_duration = 30.0  # seconds
+        self._sensitivity = 0.7 # Weighted threshold: 0.5 = middle, >0.5 = harder to trigger (closer to concentration)
         
         # Data storage
         self._relaxed_data = []
         self._concentrated_data = []
         
-        # Results (Independent thresholds for Ch 1 and Ch 8)
-        self._threshold_1 = 1.0
-        self._dir_1 = 1 # 1: Concentration > Relaxed, -1: Concentration < Relaxed
-        self._threshold_8 = 1.0
-        self._dir_8 = 1
-        self._margin_1 = 0.01
-        self._margin_8 = 0.01
+        # Result (Single Ratio Threshold)
+        # Ratio = Beta(Front) / Alpha(Back)
+        self._threshold_ratio = 1.0
+        self._margin_ratio = 0.1
         
         # Math tasks (Centralized Logic)
         self._math_generator = MathTaskGenerator(interval=5.0)
 
     @property
-    def threshold_1(self): return self._threshold_1
-    @threshold_1.setter
-    def threshold_1(self, v): self._threshold_1 = v
-
+    def threshold_ratio(self): return self._threshold_ratio
+    
     @property
-    def dir_1(self): return self._dir_1
-    @dir_1.setter
-    def dir_1(self, v): self._dir_1 = v
-
-    @property
-    def threshold_8(self): return self._threshold_8
-    @threshold_8.setter
-    def threshold_8(self, v): self._threshold_8 = v
-
-    @property
-    def dir_8(self): return self._dir_8
-    @dir_8.setter
-    def dir_8(self, v): self._dir_8 = v
-
-    @property
-    def margin_1(self): return self._margin_1
-    @margin_1.setter
-    def margin_1(self, v): self._margin_1 = v
-
-    @property
-    def margin_8(self): return self._margin_8
-    @margin_8.setter
-    def margin_8(self, v): self._margin_8 = v
+    def margin_ratio(self): return self._margin_ratio
 
     @property
     def phase(self):
@@ -67,22 +42,6 @@ class CalibrationModel:
     @phase.setter
     def phase(self, value):
         self._phase = value
-
-    @property
-    def concentration_threshold(self):
-        return self._concentration_threshold
-
-    @concentration_threshold.setter
-    def concentration_threshold(self, value):
-        self._concentration_threshold = value
-
-    @property
-    def concentration_margin(self):
-        return self._concentration_margin
-
-    @concentration_margin.setter
-    def concentration_margin(self, value):
-        self._concentration_margin = value
 
     @property
     def current_math_task(self):
@@ -94,14 +53,6 @@ class CalibrationModel:
         if phase == CalibrationPhase.CONCENTRATED:
             self._math_generator.reset()
             self._math_generator.update()
-
-    @property
-    def is_concentration_greater(self):
-        return self._is_concentration_greater
-
-    @is_concentration_greater.setter
-    def is_concentration_greater(self, value):
-        self._is_concentration_greater = value
 
     def get_remaining_time(self):
         if self._phase in [CalibrationPhase.RELAXED, CalibrationPhase.CONCENTRATED]:
@@ -132,7 +83,8 @@ class CalibrationModel:
 
     def calculate_calibration_results(self, signal_processor: SignalProcessor):
         """
-        Calculates thresholds, directions, and margins based on collected calibration data.
+        Calculates the single threshold based on the Ratio:
+        Ratio = Beta(Ch1 - Frontal) / Alpha(Ch8 - Occipital)
         
         Args:
             signal_processor (SignalProcessor): The processor used for spectral analysis.
@@ -141,25 +93,37 @@ class CalibrationModel:
             print("Warning: Missing calibration data for calculation.")
             return
 
-        # Calculate Beta/Alpha ratios for both phases for all channels
-        ratios_rel = signal_processor.calculate_ratios(self._relaxed_data)
-        ratios_con = signal_processor.calculate_ratios(self._concentrated_data)
-        
-        # Channel 1: Frontal (index 0)
-        avg_rel_1 = float(ratios_rel[0])
-        avg_con_1 = float(ratios_con[0])
-        self._threshold_1 = (avg_rel_1 + avg_con_1) / 2.0
-        self._dir_1 = 1 if avg_con_1 > avg_rel_1 else -1
-        self._margin_1 = abs(avg_con_1 - avg_rel_1) * 0.1
+        # Helper to calculate average Ratio for a dataset
+        def get_average_ratio(data_chunk):
+            # Calculate Band Powers for all channels
+            alpha_powers = np.array(signal_processor.calculate_band_power(data_chunk, signal_processor.alpha_band))
+            beta_powers = np.array(signal_processor.calculate_band_power(data_chunk, signal_processor.beta_band))
+            
+            # Ch1 (Frontal) is index 0 -> Use Beta
+            beta_front = beta_powers[0]
+            
+            # Ch8 (Occipital) is index 7 -> Use Alpha
+            alpha_back = alpha_powers[7]
+            
+            # Avoid division by zero
+            if alpha_back == 0: alpha_back = 0.0001
+            
+            return beta_front / alpha_back
 
-        # Channel 8: Occipital (index 7)
-        avg_rel_8 = float(ratios_rel[7])
-        avg_con_8 = float(ratios_con[7])
-        self._threshold_8 = (avg_rel_8 + avg_con_8) / 2.0
-        self._dir_8 = 1 if avg_con_8 > avg_rel_8 else -1
-        self._margin_8 = abs(avg_con_8 - avg_rel_8) * 0.1
+        # Calculate average ratios for both phases
+        avg_ratio_relaxed = get_average_ratio(self._relaxed_data)
+        avg_ratio_concentrated = get_average_ratio(self._concentrated_data)
+        
+        print(f"DEBUG: Avg Ratio Relaxed: {avg_ratio_relaxed:.4f}")
+        print(f"DEBUG: Avg Ratio Concentrated: {avg_ratio_concentrated:.4f}")
+
+        # Calculate Threshold
+        # We expect Concentrated Ratio > Relaxed Ratio.
+        # Threshold is weighted average.
+        self._threshold_ratio = avg_ratio_relaxed + self._sensitivity * (avg_ratio_concentrated - avg_ratio_relaxed)
+        
+        # Margin is 10% of the distance
+        self._margin_ratio = abs(avg_ratio_concentrated - avg_ratio_relaxed) * 0.1
         
         print(f"Calibration Results calculated in Model:")
-        print(f"  Ch 1 (Frontal) -> Th: {self._threshold_1:.4f}, Dir: {self._dir_1}, Margin: {self._margin_1:.4f}")
-        print(f"  Ch 8 (Occipital) -> Th: {self._threshold_8:.4f}, Dir: {self._dir_8}, Margin: {self._margin_8:.4f}")
-
+        print(f"  Ratio (Beta_Ch1 / Alpha_Ch8) -> Th: {self._threshold_ratio:.4f}, Margin: {self._margin_ratio:.4f}")

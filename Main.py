@@ -30,16 +30,16 @@ class Main:
         # 1. Calibration
         print("Starting EEG Calibration...")
         calibration = CalibrationApp()
-        th1, dir1, m1, th8, dir8, m8 = calibration.run()
+        th_ratio, margin_ratio = calibration.run()
 
         # 2. Setup Real-Time BCI
         command_queue = Queue()
-        bci_process = RealTimeProcessor(th1, dir1, m1, th8, dir8, m8, command_queue)
+        bci_process = RealTimeProcessor(th_ratio, margin_ratio, command_queue)
         bci_process.start()
 
         # 3. Game Start
         try:
-            print(f"Starting Game with thresholds: {th1:.4f} and {th8:.4f}")
+            print(f"Starting Game with Ratio Threshold: {th_ratio:.4f}")
             game = GameApp()
             game.run(command_queue)
         finally:
