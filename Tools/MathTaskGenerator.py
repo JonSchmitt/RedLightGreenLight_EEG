@@ -43,13 +43,21 @@ class MathTaskGenerator:
         
         if op == ':':
             # Ensure integer division: a = b * factor
-            b = random.randint(1, 10)
-            factor = random.randint(1, 10)
+            b = random.randint(7, 20)
+            factor = random.randint(6, 10)
             a = b * factor
-        else:
-            # For +, -, ·
-            a = random.randint(1, 20)
-            b = random.randint(1, 20)
+        elif op == '·':
+            # Schwierigere Multiplikation: z.B. 12 * 14
+            a = random.randint(11, 25)
+            b = random.randint(3, 15)
+        elif op == '+':
+            # Addition im dreistelligen Bereich
+            a = random.randint(100, 500)
+            b = random.randint(100, 500)
+        else: # Minus
+            # Subtraktion mit Zehnerübergang
+            a = random.randint(150, 600)
+            b = random.randint(75, 149)
             
         self._current_task = f"{a} {op} {b} = ?"
         self._last_update_time = time.time()
