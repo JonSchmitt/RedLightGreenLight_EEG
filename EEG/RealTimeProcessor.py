@@ -21,7 +21,7 @@ class RealTimeProcessor(Process):
         self._sampling_rate = sampling_rate
         
         # Buffer: sliding window using deque for performance
-        self._window_size = sampling_rate 
+        self._window_size = sampling_rate*2
         self._buffer = deque(maxlen=self._window_size)
 
         self._running = True
@@ -116,7 +116,7 @@ class RealTimeProcessor(Process):
         is_concentrated = ratio > (self._threshold + self._margin)
         
         # Relaxation Check (Stop): Ratio < Threshold - Margin
-        is_relaxed = ratio < (self._threshold - self._margin)
+        is_relaxed = ratio < (self._threshold)
 
         # Log Logic State
         import time
