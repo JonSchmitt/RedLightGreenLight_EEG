@@ -94,3 +94,31 @@ Diese Funktion blendet das Signal an den Rändern sanft auf Null aus.
 
 *   **Effekt:** Die Kanten verschwinden.
 *   **Ergebnis:** Alpha-Wellen bleiben sauber bei Alpha, Beta-Wellen bei Beta. Die Unterscheidung wird viel präziser.
+
+---
+
+---
+
+## 5. Zeit-Filter ("Debounce")
+
+Anstatt einer rechnerischen Glättung (Smoothing) nutzen wir nun eine **Zeit-Bedingung**.
+
+*   **Regel:** Der Schwellenwert muss für **mindestens 0,5 Sekunden UNUNTERBROCHEN** überschritten sein, damit die Figur losläuft.
+*   **Regel:** Der Schwellenwert muss für **mindestens 0,5 Sekunden UNUNTERBROCHEN** unterschritten sein, damit die Figur stehen bleibt.
+
+**Vorteil:**
+Kurze "Ausreißer" (Spikes) von z.B. 0,2 Sekunden werden komplett ignoriert. Das System reagiert erst, wenn du den Zustand stabil hältst. Dies führt zu einer sehr viel ruhigeren Steuerung ohne "Geister-Laufen" durch kurze Schwankungen.
+
+---
+
+## 6. Störungs-Erkennung (Artifact Rejection)
+
+**Hinweis:** Diese Funktion ist im Code aktuell vorbereitet, aber **auskommentiert (inaktiv)**.
+
+Muskelbewegungen (Zähneknirschen, Stirnrunzeln, Blinzeln) erzeugen elektrische Signale, die viel stärker sind als echtes EEG. Diese Signale können fälschlicherweise als "Konzentration" erkannt werden.
+
+*   **Funktionsweise:** Das System prüft die Signalstärke (Amplitude).
+*   **Grenze:** Wenn das Signal stärker als **100 µV** ist.
+*   **Reaktion:** Der aktuelle Moment wird **ignoriert**. Das System blockiert jegliche Bewegung, bis das Signal wieder normal ist.
+
+Falls du merkst, dass Grimassen schneiden die Figur bewegt, kannst du diesen Block im Code (`RealTimeProcessor.py`) wieder aktivieren ("einkommentieren").
