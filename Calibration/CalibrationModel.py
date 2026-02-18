@@ -93,6 +93,9 @@ class CalibrationModel:
             print("Warning: Missing calibration data for calculation.")
             return
 
+        self._relaxed_data = self._relaxed_data[1250:-1250]
+        self._concentrated_data = self._concentrated_data[1250:-1250]
+
         # Helper to calculate average Ratio for a dataset
         def get_average_ratio(data_chunk):
             # Calculate Band Powers for all channels
@@ -122,8 +125,8 @@ class CalibrationModel:
         # Threshold is weighted average.
         self._threshold_ratio = avg_ratio_relaxed + self._sensitivity * (avg_ratio_concentrated - avg_ratio_relaxed)
         
-        # Margin is 10% of the distance
-        self._margin_ratio = abs(avg_ratio_concentrated - avg_ratio_relaxed) * 0.1
+        # Margin is 20% of the distance
+        self._margin_ratio = abs(avg_ratio_concentrated - avg_ratio_relaxed) * 0.2
         
         print(f"Calibration Results calculated in Model:")
         print(f"  Ratio (Beta_Ch1 / Alpha_Ch8) -> Th: {self._threshold_ratio:.4f}, Margin: {self._margin_ratio:.4f}")
