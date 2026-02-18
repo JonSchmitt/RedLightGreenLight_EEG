@@ -6,7 +6,10 @@ Dieses Dokument bietet einen detaillierten Überblick über die Architektur des 
 
 Das folgende Diagramm zeigt den vollständigen Ablauf des Programms, beginnend bei `Main.py`:
 
-![Programmablauf von Main.py](docs/architecture_flow.png)
+### Programmablauf Overview:
+1. **Programmstart (`Main.py`)**: Orchestriert den gesamten Ablauf.
+2. **Kalibrierung**: Ermittelt individuelle Schwellenwerte.
+3. **Echtzeit-Verarbeitung**: Analysiert EEG und steuert das Spiel.
 
 ### Erklärung des Programmablaufs:
 
@@ -15,16 +18,17 @@ Das folgende Diagramm zeigt den vollständigen Ablauf des Programms, beginnend b
    - Die `main()`-Methode orchestriert den gesamten Ablauf
 
 2. **Phase 1: Kalibrierung**:
+   ![Detaillierter Kalibrierungs-Ablauf](docs/calibration_logic.svg)
    - `CalibrationApp` wird gestartet
    - Der Nutzer durchläuft zwei 30-sekündige Phasen (Relaxed und Concentrated)
-   - Die Kalibrierung liefert 6 Werte zurück: `th1, dir1, m1, th8, dir8, m8`
-     - `th1/th8`: Schwellenwerte für Kanal 1 und 8
-     - `dir1/dir8`: Richtung (+1 oder -1) für jeden Kanal
-     - `m1/m8`: Sicherheitsmargen (15% des Schwellenwerts)
+   - Die Kalibrierung liefert 2 Werte zurück: `threshold_ratio` und `margin_ratio`
+     - `threshold_ratio`: Ein gewichteter Schwellenwert basierend auf dem Beta/Alpha-Verhältnis beider Phasen.
+     - `margin_ratio`: Eine Sicherheitsmarge (Hysterese), basierend auf der Differenz zwischen Relaxed und Concentrated.
 
 3. **Phase 2: BCI-Prozess starten**:
+   ![Steuerungs-Pipeline](docs/realtime_logic.svg)
    - `RealTimeProcessor` wird mit den Kalibrierungswerten initialisiert
-   - Der Prozess startet als separater Hintergrundprozess
+   - Der Prozess startet als separater Hintergrundprozess (Multiprocessing)
    - Er analysiert kontinuierlich EEG-Daten und sendet Befehle über eine `Queue`
 
 4. **Phase 3: Spiel starten**:
@@ -33,82 +37,59 @@ Das folgende Diagramm zeigt den vollständigen Ablauf des Programms, beginnend b
    - In jedem Frame:
      - Werden EEG-Befehle aus der Queue gelesen (falls vorhanden)
      - Tastendrücke simuliert (LEERTASTE drücken/loslassen)
-     - Der aktuelle Spielzustand aktualisiert
-     - Zwischen Zuständen gewechselt (Menu, Game, Settings, Quit)
-
-5. **Programmende**:
-   - Bei `QuitState` wird die Schleife beendet
-   - Der BCI-Prozess wird gestoppt
-   - Pygame wird beendet
+     - Der aktuelle Spielzustand wird aktualisiert
 
 ---
 
 ## 2. Kalibrierungs-Logik im Detail
 
-Der Kalibrierungsprozess ist entscheidend für die Bestimmung der individuellen Beta/Alpha-Verhältnis-Schwellenwerte. Das folgende Diagramm zeigt alle Berechnungsschritte:
+Der Kalibrierungsprozess ist entscheidend für die Bestimmung des individuellen Beta/Alpha-Verhältnis-Schwellenwerts.
 
-![Detaillierter Kalibrierungs-Ablauf](docs/calibration_flow.png)
-
-### Detaillierte Erklärung der Berechnungsschritte:
+### Berechnungsschritte:
 
 **Phase 1 & 2: Datensammlung**
-- Jede Phase dauert 30 Sekunden
-- Bei 250 Hz Abtastrate werden 7500 Samples pro Kanal gesammelt
-- Kanal 1 (Frontal) und Kanal 8 (Okzipital) werden verwendet
+- Jede Phase dauert 30 Sekunden (ca. 7500 Samples bei 250 Hz)
+- Fokus auf Kanal 1 (Frontal) und Kanal 8 (Okzipital)
 
-**Schritt 1: Filterung**
-- Butterworth-Bandpass-Filter 3. Ordnung
-- **Kausale Filterung** mit `lfilter` (wichtig für Konsistenz mit Echtzeit)
-- Alpha-Band: 8-12 Hz
-- Beta-Band: 13-30 Hz
+**Schritt 1: Merkmals-Extraktion (Zentralisiert im SignalProcessor)**
+- **Filterung**: Butterworth-Bandpass-Filter 3. Ordnung (Kausal)
+- **Power-Berechnung**: Spektralleistung (FFT-Magnitude) in spezifischen Bändern:
+  - **Alpha (8-12 Hz)** auf Kanal 8 (Okzipital)
+  - **Beta (13-30 Hz)** auf Kanal 1 (Frontal)
+- **Normalisierung**: Die Leistung wird als **Mittelwert der Magnituden** über die Frequenz-Bins berechnet. 
+  > [!IMPORTANT]
+  > Diese Normalisierung macht die Metrik unabhängig von der Fensterlänge. Dadurch sind Werte aus der 30-sekündigen Kalibrierungsphase direkt mit den 1-sekündigen Echtzeit-Fenstern vergleichbar.
+- **Ratio-Berechnung**: `Ratio = Beta_Ch1 / Alpha_Ch8`
 
-**Schritt 2: FFT-Berechnung**
-- Fast Fourier Transform wird auf die gefilterten Signale angewendet
-- Transformation vom Zeitbereich in den Frequenzbereich
+**Schritt 2: Schwellenwert-Berechnung**
+- Für jede Phase wird ein repräsentatives Verhältnis berechnet (`ratio_rel`, `ratio_con`).
+- **Gewichteter Schwellenwert**:
+  - `threshold = ratio_rel + sensitivity * (ratio_con - ratio_rel)`
+  - Standard-Sensitivität: 0.7 (macht es etwas "schwerer", in den Bewegungs-Zustand zu kommen).
 
-**Schritt 3: Spektralleistung**
-- Die Magnituden der FFT-Werte werden summiert
-- Ergibt die Gesamtleistung im jeweiligen Frequenzband
-
-**Schritt 4: Verhältnis-Berechnung**
-- `Ratio = Beta_Power / Alpha_Power`
-- Wird für beide Kanäle und beide Phasen berechnet
-- Ergibt: `Ch1_rel`, `Ch1_con`, `Ch8_rel`, `Ch8_con`
-
-**Schritt 5: Schwellenwert-Berechnung**
-- Mittelwert der beiden Phasen:
-  - `th1 = (Ch1_rel + Ch1_con) / 2`
-  - `th8 = (Ch8_rel + Ch8_con) / 2`
-
-**Schritt 6: Richtungsbestimmung**
-- Bestimmt, ob höhere oder niedrigere Werte Konzentration bedeuten:
-  - `dir = +1` wenn `Concentrated > Relaxed` (höhere Werte = Konzentration)
-  - `dir = -1` sonst (niedrigere Werte = Konzentration)
-
-**Schritt 7: Sicherheitsmarge**
-- 15% des Schwellenwerts als Hysterese-Margin:
-  - `m1 = th1 × 0.15`
-  - `m8 = th8 × 0.15`
-- Verhindert zu häufiges Umschalten bei Rauschen
+**Schritt 3: Sicherheitsmarge (Margin)**
+- Die Marge wird als Prozentsatz der Differenz berechnet:
+  - `margin = |ratio_con - ratio_rel| * 0.2`
+- Dient als Hysterese, um instabiles Schalten (Flickering) zu verhindern.
 
 ---
 
 ## 3. Echtzeit-Steuerungslogik (BCI)
 
-Während das Spiel läuft, analysiert der `RealTimeProcessor` kontinuierlich EEG-Daten:
-
-### Diagramm der Steuerungs-Pipeline
-
-![Steuerungs-Pipeline](docs/realtime_pipeline.png)
+Während das Spiel läuft, analysiert der `RealTimeProcessor` kontinuierlich EEG-Daten in einer performanten Loop:
 
 ### Verarbeitungsschritte:
-1.  **Datenerfassung**: `EEGManager` ruft Samples mit 250Hz ab
-2.  **Sliding Window**: 1-Sekunden-Puffer (250 Samples) wird kontinuierlich aktualisiert
-3.  **Signalverarbeitung**: Identisch zur Kalibrierung (Filter, FFT, Ratio-Berechnung)
-4.  **Hystereselogik** (Dual-Channel Agreement):
-    - **BEWEGUNG auslösen**: Beide Kanäle müssen `threshold + margin` überschreiten
-    - **STILLSTAND auslösen**: Mindestens ein Kanal muss unter `threshold - margin` fallen
-5.  **Befehlsausführung**: Befehle werden über `multiprocessing.Queue` an `GameApp` gesendet
+1.  **Datenerfassung**: `EEGManager` ruft Samples ab.
+2.  **Sliding Window**: Ein 1-Sekunden-Puffer wird gepflegt.
+3.  **Optimierte Signalverarbeitung**: 
+    - Der `SignalProcessor` berechnet die Ratio.
+    - **Optimierung**: Es werden nur die benötigten Kanäle (1 und 8) gefiltert und analysiert, nicht der gesamte EEG-Stream.
+4.  **Zeit-basierte Hystereselogik (Debounce)**:
+    - **Zustandserkennung**: 
+        - `is_concentrated`: `ratio > threshold + margin`
+        - `is_relaxed`: `ratio < threshold - margin`
+    - **Bestätigungszeit**: Ein Zustandswechsel wird nur ausgelöst, wenn die Bedingung kontinuierlich für eine bestimmte Dauer (z.B. 0.5s) erfüllt ist.
+5.  **Befehlsausführung**: `PRESS SPACE` bei Konzentration, `RELEASE` bei Entspannung.
 
 ---
 

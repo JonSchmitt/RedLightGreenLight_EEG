@@ -22,7 +22,7 @@ class SignalProcessor:
     @property
     def sampling_rate(self): return self._sampling_rate
 
-    def calculate_band_power(self, data, band):
+    def calculate_band_power(self, data, band, channel_indices=None):
         """
         Calculates power in a band using Butterworth filtering and FFT magnitude summation.
         Matches MATLAB: sum(abs(fft(filtered_signal(band))))
@@ -30,13 +30,22 @@ class SignalProcessor:
         Args:
             data (list or np.ndarray): The raw EEG data (samples x channels).
             band (tuple): The frequency band (low, high) in Hz.
+            channel_indices (list, optional): Indices of channels to process. If None, all channels are processed.
 
         Returns:
-            float or list: The spectral power for each channel.
+            float or list: The spectral power for the requested channels.
         """
 
         data_np = np.array(data)
         
+        # Select specific channels if requested
+        if channel_indices is not None:
+            if data_np.ndim == 1:
+                # If only 1D data is provided, assume it's one channel
+                data_np = data_np[:, None]
+            else:
+                data_np = data_np[:, channel_indices]
+
         # Subtract mean (DC offset) to minimize filter transients
         data_np = data_np - np.mean(data_np, axis=0)
         
@@ -47,14 +56,13 @@ class SignalProcessor:
         filtered_data = lfilter(b, a, data_np, axis=0)
         
         # Apply Hanning window to reduce spectral leakage
-        # This tapers the signal at the edges to 0, preventing "jumps" that look like high frequencies (Beta)
         N = len(filtered_data)
-        window = np.hanning(N)[:, None] # Create window and unnecessary dimension for broadcasting
+        window = np.hanning(N)[:, None]
         windowed_data = filtered_data * window
         
-        # Calculate spectral magnitude Mean (to be window-length independent)
+        # Calculate spectral magnitude Mean
         freqs = np.fft.rfftfreq(N, 1/self._sampling_rate)
-        fft_mags = np.abs(np.fft.rfft(windowed_data, axis=0)) / N # Normalize by N
+        fft_mags = np.abs(np.fft.rfft(windowed_data, axis=0)) / N
         
         # Mask for the relevant frequency bins
         mask = (freqs >= band[0]) & (freqs <= band[1])
@@ -65,7 +73,32 @@ class SignalProcessor:
         if np.isscalar(spectral_means):
             return float(spectral_means)
         
+        # If we selected channels, the output will match the number of indices
         return spectral_means.tolist()
+
+    def calculate_concentration_metric(self, data):
+        """
+        Calculates the specific metric used for concentration: 
+        Ratio = Beta(Ch1 - Frontal) / Alpha(Ch8 - Occipital)
+        
+        Args:
+            data (list or np.ndarray): Raw EEG data.
+
+        Returns:
+            tuple: (ratio, beta_ch1, alpha_ch8)
+        """
+        # Optimized: Only process Ch1 (index 0) and Ch8 (index 7)
+        # Ch1 (Frontal) -> Use Beta (13-30 Hz)
+        beta_ch1 = float(self.calculate_band_power(data, self._beta_band, channel_indices=[0]))
+        
+        # Ch8 (Occipital) -> Use Alpha (8-12 Hz)
+        alpha_ch8 = float(self.calculate_band_power(data, self._alpha_band, channel_indices=[7]))
+        
+        # Avoid division by zero
+        if alpha_ch8 == 0: alpha_ch8 = 0.0001
+        
+        ratio = beta_ch1 / alpha_ch8
+        return ratio, beta_ch1, alpha_ch8
 
     def calculate_ratios(self, data):
         """

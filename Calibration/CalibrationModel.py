@@ -96,37 +96,20 @@ class CalibrationModel:
         self._relaxed_data = self._relaxed_data[1250:-1250]
         self._concentrated_data = self._concentrated_data[1250:-1250]
 
-        # Helper to calculate average Ratio for a dataset
-        def get_average_ratio(data_chunk):
-            # Calculate Band Powers for all channels
-            alpha_powers = np.array(signal_processor.calculate_band_power(data_chunk, signal_processor.alpha_band))
-            beta_powers = np.array(signal_processor.calculate_band_power(data_chunk, signal_processor.beta_band))
-            
-            # Ch1 (Frontal) is index 0 -> Use Beta
-            beta_front = beta_powers[0]
-            
-            # Ch8 (Occipital) is index 7 -> Use Alpha
-            alpha_back = alpha_powers[7]
-            
-            # Avoid division by zero
-            if alpha_back == 0: alpha_back = 0.0001
-            
-            return beta_front / alpha_back
-
-        # Calculate average ratios for both phases
-        avg_ratio_relaxed = get_average_ratio(self._relaxed_data)
-        avg_ratio_concentrated = get_average_ratio(self._concentrated_data)
+        # Calculate representative ratios for both phases
+        ratio_relaxed, _, _ = signal_processor.calculate_concentration_metric(self._relaxed_data)
+        ratio_concentrated, _, _ = signal_processor.calculate_concentration_metric(self._concentrated_data)
         
-        print(f"DEBUG: Avg Ratio Relaxed: {avg_ratio_relaxed:.4f}")
-        print(f"DEBUG: Avg Ratio Concentrated: {avg_ratio_concentrated:.4f}")
+        print(f"DEBUG: Representative Ratio Relaxed: {ratio_relaxed:.4f}")
+        print(f"DEBUG: Representative Ratio Concentrated: {ratio_concentrated:.4f}")
 
         # Calculate Threshold
         # We expect Concentrated Ratio > Relaxed Ratio.
-        # Threshold is weighted average.
-        self._threshold_ratio = avg_ratio_relaxed + self._sensitivity * (avg_ratio_concentrated - avg_ratio_relaxed)
+        # Threshold is weighted average based on sensitivity.
+        self._threshold_ratio = ratio_relaxed + self._sensitivity * (ratio_concentrated - ratio_relaxed)
         
         # Margin is 20% of the distance
-        self._margin_ratio = abs(avg_ratio_concentrated - avg_ratio_relaxed) * 0.2
+        self._margin_ratio = abs(ratio_concentrated - ratio_relaxed) * 0.2
         
         print(f"Calibration Results calculated in Model:")
         print(f"  Ratio (Beta_Ch1 / Alpha_Ch8) -> Th: {self._threshold_ratio:.4f}, Margin: {self._margin_ratio:.4f}")

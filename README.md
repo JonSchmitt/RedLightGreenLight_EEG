@@ -18,43 +18,46 @@ Welcome to the RedLightGreenLight EEG project. This application uses Brain-Compu
 
 For a detailed understanding of the project, please refer to the following documents:
 
-*   **[Project Structure & EEG Logic](ProjectStructure.md)**: Explains the internal architecture, signal processing pipeline, and how the BCI control works with Mermaid diagrams.
+*   **[ProjectStructure (Logik & Diagramme)](ProjectStructure.md)**: Erklärt die interne Architektur, die Signalverarbeitungspipeline und die BCI-Steuerung mit detaillierten **SVG-Diagrammen**.
 *   **[Game Details & Design Patterns](GameDetails.md)**: Details focusing on the game implementation, MVC structure, and used design patterns.
 
 ## Features
 
-*   **Real-time EEG Processing**: Translates brain activity into game movement.
+*   **Real-time EEG Processing**: Translates brain activity into game movement using specialized spectral analysis.
 *   **Interactive Calibration**: Personalized thresholding based on relaxed and concentrated states.
-*   **Dual-Channel Agreement**: High-reliability control using both Frontal and Occipital brain regions.
-*   **Mack Mode**: Includes built-in support for testing without EEG hardware.
+*   **Cross-Region Ratio Analysis**: Uses the ratio between Frontal Beta (Ch1) and Occipital Alpha (Ch8) for high-reliability focus detection.
+*   **Time-based Debounce**: Prevents accidental movement triggers using continuous state verification.
+*   **Mock Mode**: Includes built-in support for testing without EEG hardware.
 
 ## Troubleshooting & Fine-Tuning
 
-If the BCI control feels unresponsive or unstable during live testing, you can adjust the following parameters in the code:
+If the BCI control feels unresponsive or unstable, you can adjust these core parameters:
 
-### 1. Adjusting Sensitivity (Margins)
-If the state switches too rapidly (flickering) or not at all (too hard).
+### 1. Adjusting Sensitivity
+If it's too hard or too easy to reach the "Concentrated" state.
 - **File**: `Calibration/CalibrationModel.py`
-- **Parameter**: `self._margin_1` and `self._margin_8`
+- **Parameter**: `self._sensitivity` (Default: `0.7`)
 - **Action**:
-    - **Too nervous?** Increase factor (e.g., `* 0.2` or `* 0.3`).
-    - **Too unresponsive?** Decrease factor (e.g., `* 0.05`).
+    - **Too hard?** Decrease (e.g., `0.5` or `0.6`).
+    - **Too easy?** Increase (e.g., `0.8`).
 
-### 2. Smoothing (Window Size)
-Controls how much past data influences the current decision.
+### 2. Stability (Debounce Duration)
+Controls how long a state must be held continuously to trigger a change.
 - **File**: `EEG/RealTimeProcessor.py`
-- **Parameter**: `self._window_size`
+- **Parameter**: `self._duration_threshold` (Default: `0.5` seconds)
 - **Action**:
-    - **Too slow?** Reduce to `int(sampling_rate * 0.5)` (0.5s).
-    - **Too noisy?** Increase to `sampling_rate * 2` (2s).
+    - **Flickering state?** Increase to `0.7` or `1.0`.
+    - **Laggy response?** Decrease to `0.3` (Warning: may increase false positives).
 
-### 3. Frequency Bands
-Adjust if muscle artifacts or individual differences affect detection.
+### 3. Hysteresis Margin
+The "buffer zone" around the threshold to prevent rapid switching.
+- **File**: `Calibration/CalibrationModel.py`
+- **Parameter**: `self._margin_ratio` calculation factor (Default: `0.2`)
+- **Action**:
+    - **Unstable switching?** Increase factor (e.g., `0.3`).
+
+### 4. Frequency Bands
+Adjust if individual differences affect detection.
 - **File**: `EEG/SignalProcessor.py`
 - **Parameter**: `self._alpha_band`, `self._beta_band`
 - **Action**: Shift ranges (e.g., Alpha `7-13`, Beta `15-30`) to avoid noise.
-
-### 4. Threshold Difficulty
-- **File**: `Calibration/CalibrationModel.py`
-- **Parameter**: `self._threshold_1` calculation.
-- **Action**: Use a weighted average instead of `(rel + con) / 2` to make it easier/harder to reach the concentrated state.

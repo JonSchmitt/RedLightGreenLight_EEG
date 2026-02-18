@@ -70,10 +70,7 @@ class RealTimeProcessor(Process):
                         
                         # --- ARTIFACT REJECTION (End) ---
 
-                        raw_ratio, beta_val, alpha_val = self._calculate_ratio(signal_processor)
-                        
-                        # No more EMA smoothing!
-                        # Directly process the raw ratio with time-based logic.
+                        raw_ratio, beta_val, alpha_val = signal_processor.calculate_concentration_metric(self._buffer)
                         self._process_logic(raw_ratio, beta_val, alpha_val, data_logger)
                 
                 if eeg_manager.mock_mode:
@@ -105,64 +102,32 @@ class RealTimeProcessor(Process):
             return True
         return False
 
-    def _calculate_ratio(self, signal_processor):
-        """
-        Calculates Ratio = Beta(Ch1) / Alpha(Ch8).
-        
-        Args:
-            signal_processor (SignalProcessor): The processor for spectral analysis.
-
-        Returns:
-            tuple: (ratio, beta_val, alpha_val)
-        """
-        # Convert deque to array for processing
-        data_window = np.array(self._buffer)
-        
-        # Calculate Band Powers
-        alpha_powers = np.array(signal_processor.calculate_band_power(data_window, signal_processor.alpha_band))
-        beta_powers = np.array(signal_processor.calculate_band_power(data_window, signal_processor.beta_band))
-        
-        # Ch1 (Frontal) is index 0 -> Use Beta
-        beta_front = beta_powers[0]
-        
-        # Ch8 (Occipital) is index 7 -> Use Alpha
-        alpha_back = alpha_powers[7]
-        
-        # Avoid division by zero
-        if alpha_back == 0: alpha_back = 0.0001
-        
-        return (beta_front / alpha_back), beta_front, alpha_back
 
 
-    def _process_logic(self, ratio, beta, alpha, data_logger):
-        """
-        Time-Duration Hysteresis Logic.
-        State changes only if condition is met continuously for _duration_threshold.
-        """
-        import time
-        now = time.time()
-        
-        # 1. Check raw conditions
-        is_condition_concentrated = ratio > (self._threshold + self._margin)
-        is_condition_relaxed = ratio < (self._threshold - self._margin)
+    def _evaluate_conditions(self, ratio):
+        """Checks if the ratio meets concentration/relaxation thresholds."""
+        is_con = ratio > (self._threshold + self._margin)
+        is_rel = ratio < (self._threshold - self._margin)
+        return is_con, is_rel
 
-        # 2. Update Timers
-        
+    def _update_timers(self, is_con, is_rel, now):
+        """Updates duration timers based on current conditions."""
         # Timer for Concentration
-        if is_condition_concentrated:
+        if is_con:
             if self._con_start_time is None:
                 self._con_start_time = now
         else:
-            self._con_start_time = None # Reset if condition breaks
+            self._con_start_time = None
 
         # Timer for Relaxation
-        if is_condition_relaxed:
+        if is_rel:
             if self._rel_start_time is None:
                 self._rel_start_time = now
         else:
-            self._rel_start_time = None # Reset if condition breaks
-            
-        # 3. Determine if Trigger happened
+            self._rel_start_time = None
+
+    def _handle_state_transitions(self, ratio, now):
+        """Checks timers and executes state changes (PRESS/RELEASE)."""
         trigger_move = False
         trigger_stop = False
         
@@ -174,7 +139,6 @@ class RealTimeProcessor(Process):
             if (now - self._rel_start_time) >= self._duration_threshold:
                 trigger_stop = True
 
-        # 4. Execute State Change
         if not self._last_state: # currently IDLE
             if trigger_move:
                 self._last_state = True
@@ -186,7 +150,8 @@ class RealTimeProcessor(Process):
                 self._send_command("RELEASE", KEY.SPACE)
                 print(f"BCI: IDLE. (Held > {self._duration_threshold}s | Ratio: {ratio:.3f})")
 
-        # Log Logic State
+    def _log_processing_state(self, ratio, beta, alpha, is_con, is_rel, now, data_logger):
+        """Logs the logic state and metrics."""
         data_logger.log({
             "Timestamp": now,
             "Type": "LOGIC",
@@ -194,12 +159,31 @@ class RealTimeProcessor(Process):
             "Beta": beta,
             "Alpha": alpha,
             "Threshold": self._threshold,
-            "LoopCon": is_condition_concentrated,
-            "LoopRel": is_condition_relaxed,
+            "LoopCon": is_con,
+            "LoopRel": is_rel,
             "TimerCon": (now - self._con_start_time) if self._con_start_time else 0,
             "TimerRel": (now - self._rel_start_time) if self._rel_start_time else 0,
             "State": "MOVING" if self._last_state else "IDLE"
         })
+
+    def _process_logic(self, ratio, beta, alpha, data_logger):
+        """
+        Orchestrates the processing steps: Evaluation, Timer Update, State Transition, and Logging.
+        """
+        import time
+        now = time.time()
+        
+        # 1. Evaluate conditions
+        is_con, is_rel = self._evaluate_conditions(ratio)
+        
+        # 2. Update Timers
+        self._update_timers(is_con, is_rel, now)
+        
+        # 3. Handle Transitions
+        self._handle_state_transitions(ratio, now)
+        
+        # 4. Log state (Separated from core logic)
+        self._log_processing_state(ratio, beta, alpha, is_con, is_rel, now, data_logger)
 
     def _send_command(self, action, key):
         self._command_queue.put((action, key))
