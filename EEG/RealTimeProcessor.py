@@ -21,12 +21,12 @@ class RealTimeProcessor(Process):
         self._sampling_rate = sampling_rate
         
         # Buffer: sliding window using deque for performance
-        self._window_size = sampling_rate//2
+        self._window_size = sampling_rate
         self._buffer = deque(maxlen=self._window_size)
         
         # Time-Duration Check (Debounce)
         # The condition must be met CONTINUOUSLY for this duration to trigger a change.
-        self._duration_threshold = 0.5 # seconds
+        self._duration_threshold = 0.4 # seconds
         
         # Timers to track how long we are in a potential new state
         self._con_start_time = None
@@ -57,19 +57,6 @@ class RealTimeProcessor(Process):
             while self._running:
                 if self._acquire_data(eeg_manager, data_logger):
                     if len(self._buffer) >= self._window_size:
-                        
-                        # --- ARTIFACT REJECTION (Start) ---
-                        # If the signal is too strong (> 100 uV), it is likely muscle noise (EMG).
-                        # We ignore this window to prevent false positives.
-                        
-                        # max_amplitude = np.max(np.abs(np.array(self._buffer)))
-                        # if max_amplitude > 100.0:
-                        #     print(f"Artifact detected! (Amp: {max_amplitude:.1f} uV) - Ignoring.")
-                        #     # Optional: Force "Relaxed" state or just skip processing
-                        #     continue 
-                        
-                        # --- ARTIFACT REJECTION (End) ---
-
                         raw_ratio, beta_val, alpha_val = signal_processor.calculate_concentration_metric(self._buffer)
                         self._process_logic(raw_ratio, beta_val, alpha_val, data_logger)
                 

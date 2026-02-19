@@ -11,7 +11,7 @@ class SignalProcessor:
         self._sampling_rate = sampling_rate
         # Bands as specified by user
         self._alpha_band = (8, 12)
-        self._beta_band = (13, 30) # Using 13-30 as per MATLAB bounds
+        self._beta_band = (13, 30)
 
     @property
     def alpha_band(self): return self._alpha_band

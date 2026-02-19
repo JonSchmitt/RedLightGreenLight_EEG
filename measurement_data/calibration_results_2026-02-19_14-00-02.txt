@@ -1,0 +1,2 @@
+Calibration Results:
+Ratio (Beta_Front/Alpha_Back): Th=1.0000, Margin=0.1000
