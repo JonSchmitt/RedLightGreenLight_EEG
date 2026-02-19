@@ -70,10 +70,11 @@ class SignalProcessor:
         # Mean magnitude across the band
         spectral_means = np.mean(fft_mags[mask, :], axis=0)
         
-        if np.isscalar(spectral_means):
-            return float(spectral_means)
+        # If the result is a single scalar (e.g. single channel selected), return it as a float
+        if spectral_means.size == 1:
+            return spectral_means.item()
         
-        # If we selected channels, the output will match the number of indices
+        # If we selected multiple channels, return as a list
         return spectral_means.tolist()
 
     def calculate_concentration_metric(self, data):

@@ -24,9 +24,6 @@ class Main:
         1. Runs Calibration.
         2. Initializes and starts the GameApp with calibration results.
         """
-
-
-
         # 1. Calibration
         print("Starting EEG Calibration...")
         calibration = CalibrationApp()

@@ -98,8 +98,8 @@ class EEGManager:
                 print("No Unicorn devices found.")
                 return False
             
-            self._device = UnicornPy.Unicorn("UN-2023.03.08")
-            print(f"Connected to Unicorn: UN-2023.03.08")
+            self._device = UnicornPy.Unicorn("UN-2023.03.11")
+            print(f"Connected to Unicorn: UN-2023.03.11")
             return True
         except Exception as e:
             print(f"Error connecting to Unicorn: {e}")

@@ -21,7 +21,7 @@ class RealTimeProcessor(Process):
         self._sampling_rate = sampling_rate
         
         # Buffer: sliding window using deque for performance
-        self._window_size = sampling_rate 
+        self._window_size = sampling_rate//2
         self._buffer = deque(maxlen=self._window_size)
         
         # Time-Duration Check (Debounce)
