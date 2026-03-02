@@ -1,0 +1,36 @@
+flowchart TD
+    Start([Programmstart: Main.py]) --> Init[Main-Klasse initialisieren]
+    
+    Init --> Cal[1. CalibrationApp starten]
+    Cal --> CalRun[Kalibrierung durchfuehren]
+    CalRun --> CalResult[Schwellenwerte erhalten:<br/>th1, dir1, m1, th8, dir8, m8]
+    
+    CalResult --> BCI[2. RealTimeProcessor erstellen]
+    BCI --> BCIStart[BCI-Prozess mit Schwellenwerten starten<br/>Laeuft parallel im Hintergrund]
+    
+    BCIStart --> Game[3. GameApp erstellen und starten]
+    Game --> GameLoop[Spielschleife laeuft]
+    
+    GameLoop --> Commands{EEG-Befehle<br/>in Queue?}
+    Commands -->|Ja| Inject[Tastendruck simulieren]
+    Commands -->|Nein| Update[Spielzustand aktualisieren]
+    Inject --> Update
+    
+    Update --> StateCheck{Neuer<br/>Zustand?}
+    StateCheck -->|MenuState| Menu[Menue anzeigen]
+    StateCheck -->|GameState| Playing[Spiel laeuft]
+    StateCheck -->|SettingsState| Settings[Einstellungen]
+    StateCheck -->|QuitState| Stop
+    
+    Menu --> GameLoop
+    Playing --> GameLoop
+    Settings --> GameLoop
+    
+    Stop([Programm beenden]) --> Cleanup[BCI-Prozess stoppen<br/>Pygame beenden]
+    
+    style Start fill:#9f9
+    style Cal fill:#6cf
+    style BCI fill:#f96
+    style Game fill:#fc9
+    style Stop fill:#f99
+    style CalResult fill:#6cf

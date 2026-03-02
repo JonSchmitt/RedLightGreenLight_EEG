@@ -1,0 +1,27 @@
+graph LR
+    classDef hardware fill:#ccc,stroke:#333,stroke-dasharray: 5 5;
+    classDef loop fill:#f96,stroke:#333,stroke-width:2px;
+    classDef input fill:#9f9,stroke:#333,stroke-width:2px;
+
+    subgraph EEG_Hardware [EEG Hardware / Mock]
+        Data[(EEG Stream)]:::hardware
+    end
+
+    subgraph Verarbeitungs_Schleife [Echtzeit-Schleife]
+        Manager[EEGManager]:::loop
+        Buffer[Sliding Window Buffer]:::loop
+        SP[SignalProcessor]:::loop
+        Logic[Hystereselogik]:::loop
+    end
+
+    subgraph Spiel_Input [Spiel-Input]
+        Queue[Command Queue]:::input
+        SpaceKey[Simulierte LEERTASTE]:::input
+    end
+
+    Data --> Manager
+    Manager --> Buffer
+    Buffer --> |1s Fenster| SP
+    SP --> |Beta/Alpha Verhaeltnis| Logic
+    Logic --> |Dual-Channel Agreement| Queue
+    Queue --> SpaceKey

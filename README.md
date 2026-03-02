@@ -1,63 +1,69 @@
-# RedLightGreenLight EEG Project
+# RedLightGreenLight EEG Projekt
 
-Welcome to the RedLightGreenLight EEG project. This application uses Brain-Computer Interface (BCI) technology to control a "Red Light, Green Light" game using EEG signals.
+Willkommen beim RedLightGreenLight EEG Projekt. Diese Anwendung nutzt EEG-Signale (Elektroencephalographie), um das Spiel "Red Light, Green Light" zu steuern.
+Hierbei wird das Verhältnis zwischen Beta- und Alpha-Wellen gemessen, um die Intention des Nutzers zu bestimmen. Ist der Nutzer entspannt, so ist das Verhältnis niedrig und die Figur bleibt stehen. Ist der Nutzer konzentriert, so ist das Verhältnis hoch und die Figur bewegt sich.
+Die beiden Zustände können durch das Schließen der AUgen (entspannt) und das Öffnen der Augen (konzentriert) herbeigeführt werden. Alternativ können auch auf dem Bildschirm angezeigte Rechenaufgaben gelöst werden, um den konzentrierten Zustand herbeizuführen. Letzteres ist jedoch weniger zuverlässig.
 
-## Quick Start
+## Schnellstart
 
-1.  **Install Requirements:**
+1.  **Anforderungen installieren:**
     ```bash
     pip install -r requirements.txt
     ```
 
-2.  **Run the Application:**
+2.  **Anwendung starten:**
     ```bash
     python Main.py
     ```
 
-## Documentation
+## Dokumentation
 
-For a detailed understanding of the project, please refer to the following documents:
+Für ein detailliertes Verständnis der Projektstruktur und der Signalverarbeitung lesen Sie bitte die folgenden Dokumente:
 
-*   **[ProjectStructure (Logik & Diagramme)](ProjectStructure.md)**: Erklärt die interne Architektur, die Signalverarbeitungspipeline und die BCI-Steuerung mit detaillierten **SVG-Diagrammen**.
-*   **[Game Details & Design Patterns](GameDetails.md)**: Details focusing on the game implementation, MVC structure, and used design patterns.
+*   **ProjectStructure.pdf**: Erklärt die interne Architektur, die Signalverarbeitungspipeline und die BCI-Steuerung mit detaillierten **SVG-Diagrammen**.
+*   **GameDetails.pdf**: Details zur Spielimplementierung, MVC-Struktur und verwendeten Design-Patterns.
 
-## Features
+## Funktionen
 
-*   **Real-time EEG Processing**: Translates brain activity into game movement using specialized spectral analysis.
-*   **Interactive Calibration**: Personalized thresholding based on relaxed and concentrated states.
-*   **Cross-Region Ratio Analysis**: Uses the ratio between Frontal Beta (Ch1) and Occipital Alpha (Ch8) for high-reliability focus detection.
-*   **Time-based Debounce**: Prevents accidental movement triggers using continuous state verification.
-*   **Mock Mode**: Includes built-in support for testing without EEG hardware.
+*   **Echtzeit-EEG-Verarbeitung**: Übersetzt Gehirnaktivität durch spezialisierte Spektralanalyse in Spielbewegungen.
+*   **Interaktive Kalibrierung**: Personalisierte Schwellenwertbestimmung basierend auf entspannten und konzentrierten Zuständen.
+*   **Kanalverhältnis-Analyse**: Nutzt das Verhältnis zwischen Frontal-Beta (Kanal 1) und Okzipital-Alpha (Kanal 8) für eine hochzuverlässige Fokus-Erkennung.
+*   **Zeitbasierte Entprellung (Debounce)**: Verhindert versehentliche Bewegungs-Trigger durch kontinuierliche Zustandsverifizierung.
+*   **Mock-Modus**: Integrierte Unterstützung für Tests ohne EEG-Hardware.
 
-## Troubleshooting & Fine-Tuning
+## Fehlerbehebung & Feinabstimmung
 
-If the BCI control feels unresponsive or unstable, you can adjust these core parameters:
+Wenn sich die BCI-Steuerung träge oder instabil anfühlt, können Sie diese Kernparameter anpassen:
 
-### 1. Adjusting Sensitivity
-If it's too hard or too easy to reach the "Concentrated" state.
-- **File**: `Calibration/CalibrationModel.py`
-- **Parameter**: `self._sensitivity` (Default: `0.7`)
-- **Action**:
-    - **Too hard?** Decrease (e.g., `0.5` or `0.6`).
-    - **Too easy?** Increase (e.g., `0.8`).
+### 1. Empfindlichkeit anpassen
+Wenn es zu schwer oder zu einfach ist, den "Konzentriert"-Zustand zu erreichen.
 
-### 2. Stability (Debounce Duration)
-Controls how long a state must be held continuously to trigger a change.
-- **File**: `EEG/RealTimeProcessor.py`
-- **Parameter**: `self._duration_threshold` (Default: `0.5` seconds)
-- **Action**:
-    - **Flickering state?** Increase to `0.7` or `1.0`.
-    - **Laggy response?** Decrease to `0.3` (Warning: may increase false positives).
+- **Datei**: `Calibration/CalibrationModel.py`
+- **Parameter**: `self._sensitivity` (Standard: `0.7`)
+- **Aktion**:
+    - **Zu schwer?** Verringern (z.B. `0.5` oder `0.6`).
+    - **Zu einfach?** Erhöhen (z.B. `0.8`).
 
-### 3. Hysteresis Margin
-The "buffer zone" around the threshold to prevent rapid switching.
-- **File**: `Calibration/CalibrationModel.py`
-- **Parameter**: `self._margin_ratio` calculation factor (Default: `0.2`)
-- **Action**:
-    - **Unstable switching?** Increase factor (e.g., `0.3`).
+### 2. Stabilität (Debounce-Dauer)
+Steuert, wie lange ein Zustand kontinuierlich gehalten werden muss, um eine Änderung auszulösen.
 
-### 4. Frequency Bands
-Adjust if individual differences affect detection.
-- **File**: `EEG/SignalProcessor.py`
+- **Datei**: `EEG/RealTimeProcessor.py`
+- **Parameter**: `self._duration_threshold` (Standard: `0.5` Sekunden)
+- **Aktion**:
+    - **Flackernder Zustand?** Erhöhen auf `0.7` oder `1.0`.
+    - **Verzögerte Reaktion?** Verringern auf `0.3` (Warnung: kann Fehlalarme erhöhen).
+
+### 3. Hysterese-Marge
+Die "Pufferzone" um den Schwellenwert, um schnelles Umschalten zu verhindern.
+
+- **Datei**: `Calibration/CalibrationModel.py`
+- **Parameter**: `self._margin_ratio` Berechnungsfaktor (Standard: `0.2`)
+- **Aktion**:
+    - **Instabiles Schalten?** Faktor erhöhen (z.B. `0.3`).
+
+### 4. Frequenzbänder
+Anpassen, wenn individuelle Unterschiede die Erkennung beeinflussen.
+
+- **Datei**: `EEG/SignalProcessor.py`
 - **Parameter**: `self._alpha_band`, `self._beta_band`
-- **Action**: Shift ranges (e.g., Alpha `7-13`, Beta `15-30`) to avoid noise.
+- **Aktion**: Bereiche verschieben (z.B. Alpha `7-13`, Beta `15-30`), um Rauschen zu vermeiden.

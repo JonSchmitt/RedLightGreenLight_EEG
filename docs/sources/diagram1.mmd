@@ -1,0 +1,33 @@
+graph TD
+    classDef eeg fill:#f96,stroke:#333,stroke-width:2px;
+    classDef cal fill:#6cf,stroke:#333,stroke-width:2px;
+    classDef game fill:#9f9,stroke:#333,stroke-width:2px;
+    classDef main fill:#f9f,stroke:#333,stroke-width:2px;
+
+    Main[Main.py]:::main --> GameApp[RedLightGreenLight/GameApp.py]:::main
+    
+    subgraph EEG_Backend [EEG Backend]
+        EM[EEG/EEGManager.py]:::eeg
+        SP[EEG/SignalProcessor.py]:::eeg
+        RTP[EEG/RealTimeProcessor.py]:::eeg
+    end
+
+    subgraph Kalibrierung_Modul [Kalibrierungs-Modul]
+        CA[Calibration/CalibrationApp.py]:::cal
+        CM[Calibration/CalibrationModel.py]:::cal
+        CC[Calibration/CalibrationController.py]:::cal
+    end
+
+    subgraph Spiel_Zustaende [Spiel-Zustaende]
+        GS[RedLightGreenLight/States/Game/GameState.py]:::game
+        MS[RedLightGreenLight/States/Menu/MenuState.py]:::game
+    end
+
+    GameApp --> MS
+    MS --> |Kalibrierung starten| CA
+    MS --> |Spiel starten| GS
+    
+    RTP --> EM
+    RTP --> SP
+    CA --> CM
+    CM --> SP

@@ -4,12 +4,12 @@ Dieses Dokument bietet einen detaillierten Überblick über die Architektur des 
 
 ## 1. Programmablauf und Architektur
 
-Das folgende Diagramm zeigt den vollständigen Ablauf des Programms, beginnend bei `Main.py`:
+Im Folgenden wird der vollständige Ablauf des Programms, beginnend bei `Main.py`, beschrieben. 
 
-### Programmablauf Overview:
+### Programmablauf Übersicht:
 1. **Programmstart (`Main.py`)**: Orchestriert den gesamten Ablauf.
-2. **Kalibrierung**: Ermittelt individuelle Schwellenwerte.
-3. **Echtzeit-Verarbeitung**: Analysiert EEG und steuert das Spiel.
+2. **Kalibrierung**: Ermittelt individuelle Schwellenwerte für die Konzentrationserkennung.
+3. **Echtzeit-Verarbeitung**: Analysiert kontinuierlich EEG-Daten und steuert die Spielfigur.
 
 ### Erklärung des Programmablaufs:
 
@@ -52,14 +52,16 @@ Der Kalibrierungsprozess ist entscheidend für die Bestimmung des individuellen 
 - Fokus auf Kanal 1 (Frontal) und Kanal 8 (Okzipital)
 
 **Schritt 1: Merkmals-Extraktion (Zentralisiert im SignalProcessor)**
+
 - **Filterung**: Butterworth-Bandpass-Filter 3. Ordnung (Kausal)
 - **Power-Berechnung**: Spektralleistung (FFT-Magnitude) in spezifischen Bändern:
   - **Alpha (8-12 Hz)** auf Kanal 8 (Okzipital)
   - **Beta (13-30 Hz)** auf Kanal 1 (Frontal)
 - **Normalisierung**: Die Leistung wird als **Mittelwert der Magnituden** über die Frequenz-Bins berechnet. 
-  > [!IMPORTANT]
-  > Diese Normalisierung macht die Metrik unabhängig von der Fensterlänge. Dadurch sind Werte aus der 30-sekündigen Kalibrierungsphase direkt mit den 1-sekündigen Echtzeit-Fenstern vergleichbar.
+**Wichtig:** Diese Normalisierung macht die Metrik unabhängig von der Fensterlänge. Dadurch sind Werte aus der 30-sekündigen Kalibrierungsphase direkt mit den 1-sekündigen Echtzeit-Fenstern vergleichbar.
+
 - **Ratio-Berechnung**: `Ratio = Beta_Ch1 / Alpha_Ch8`
+
 
 **Schritt 2: Schwellenwert-Berechnung**
 - Für jede Phase wird ein repräsentatives Verhältnis berechnet (`ratio_rel`, `ratio_con`).
@@ -95,10 +97,10 @@ Während das Spiel läuft, analysiert der `RealTimeProcessor` kontinuierlich EEG
 
 ## 4. Überblick der Ordnerstruktur
 
-- **`Main.py`**: Einstiegspunkt, orchestriert Kalibrierung → BCI → Spiel
-- **`EEG/`**: Kernlogik für Signalverarbeitung und Echtzeit-Multiprocessing
-- **`Calibration/`**: MVC-Implementierung für die EEG-Kalibrierungs-Sub-Anwendung
-- **`RedLightGreenLight/`**: Hauptanwendung des Spiels, State Machine und Assets
-- **`UIUtils/`**: Wiederverwendbare Pygame GUI-Komponenten
-- **`TestData/`**: Mock-Daten für Entwicklung ohne EEG-Hardware
-- **`Tests/`**: Automatisierte Skripte zur Verifizierung der Signalverarbeitung
+- **`Main.py`**: Haupteinstiegspunkt, orchestriert den Übergang von Kalibrierung zu BCI-gesteuertem Spiel.
+- **`EEG/`**: Kernlogik für Signalverarbeitung (Filterung, FFT) und Echtzeit-Multiprocessing.
+- **`Calibration/`**: MVC-Implementierung der interaktiven Kalibrierungs-Anwendung.
+- **`RedLightGreenLight/`**: Hauptanwendung des Spiels mit High-Level State Machine und grafischen Assets.
+- **`UIUtils/`**: Wiederverwendbare Pygame-GUI-Komponenten (Buttons, Menüs).
+- **`TestData/`**: Vor-aufgezeichnete EEG-Daten für die Entwicklung und Simulation ohne Hardware.
+- **`Tests/`**: Automatisierte Skripte zur Validierung der Signalverarbeitungskette.

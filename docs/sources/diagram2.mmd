@@ -1,0 +1,25 @@
+sequenceDiagram
+    participant Nutzer
+    participant Controller as CalibrationController
+    participant Model as CalibrationModel
+    participant SP as SignalProcessor
+
+    Nutzer->>Controller: Kalibrierung starten
+    Controller->>Model: RELAXED-Phase starten
+    Note over Nutzer, Model: 30s Datenerfassung (Relaxed)
+    Nutzer->>Model: EEG Daten
+    Controller->>Model: CONCENTRATED-Phase starten
+    Note over Nutzer, Model: 30s Datenerfassung (Mathe-Aufgabe)
+    Nutzer->>Model: EEG Daten
+    
+    Controller->>Model: calculate_calibration_results(SP)
+    Model->>SP: calculate_ratios(relaxed_data)
+    SP-->>Model: avg_rel_ratios
+    Model->>SP: calculate_ratios(concentrated_data)
+    SP-->>Model: avg_con_ratios
+    
+    Note over Model: Schwellenwert = (avg_rel + avg_con) / 2
+    Note over Model: Richtung = 1 falls con > rel, sonst -1
+    
+    Model-->>Controller: Ergebnisse bereit
+    Controller->>Nutzer: Ergebnisse anzeigen

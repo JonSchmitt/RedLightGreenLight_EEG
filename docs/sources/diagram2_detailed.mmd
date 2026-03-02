@@ -1,0 +1,38 @@
+flowchart TD
+    Start([Kalibrierung starten]) --> Phase1[RELAXED Phase - 30s]
+    Phase1 --> Collect1[EEG Daten sammeln<br/>250 Hz x 30s = 7500 Samples<br/>pro Kanal]
+    
+    Collect1 --> Phase2[CONCENTRATED Phase - 30s<br/>Mathe-Aufgaben loesen]
+    Phase2 --> Collect2[EEG Daten sammeln<br/>250 Hz x 30s = 7500 Samples<br/>pro Kanal]
+    
+    Collect2 --> Process[Signalverarbeitung]
+    
+    Process --> Filter1[Butterworth Bandpass Filter<br/>Alpha: 8-12 Hz<br/>Beta: 13-30 Hz]
+    Filter1 --> FFT1[FFT berechnen<br/>Spektralleistung summieren]
+    
+    FFT1 --> Ratio1[Beta/Alpha Verhaeltnis<br/>fuer jeden Kanal]
+    
+    Ratio1 --> CalcRel[Relaxed Ratios:<br/>Ch1_rel, Ch8_rel]
+    Ratio1 --> CalcCon[Concentrated Ratios:<br/>Ch1_con, Ch8_con]
+    
+    CalcRel --> Threshold1[Schwellenwert Ch1:<br/>Ch1_threshold = Ch1_rel + Ch1_con / 2]
+    CalcCon --> Threshold1
+    
+    CalcRel --> Threshold8[Schwellenwert Ch8:<br/>Ch8_threshold = Ch8_rel + Ch8_con / 2]
+    CalcCon --> Threshold8
+    
+    Threshold1 --> Direction1[Richtung Ch1:<br/>+1 falls Ch1_con > Ch1_rel<br/>-1 sonst]
+    Threshold8 --> Direction8[Richtung Ch8:<br/>+1 falls Ch8_con > Ch8_rel<br/>-1 sonst]
+    
+    Direction1 --> Done([Kalibrierung abgeschlossen<br/>Schwellenwerte gespeichert])
+    Direction8 --> Done
+    
+    style Start fill:#9f9
+    style Done fill:#9f9
+    style Filter1 fill:#fcf
+    style FFT1 fill:#fcf
+    style Ratio1 fill:#fcf
+    style Threshold1 fill:#6cf
+    style Threshold8 fill:#6cf
+    style Direction1 fill:#f96
+    style Direction8 fill:#f96

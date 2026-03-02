@@ -1,4 +1,4 @@
-# RedLightGreenLight EEG Project
+# Spieldetails & Design Patterns
 
 Dieses Projekt ist eine Implementierung des Spiels "Red Light, Green Light" unter Verwendung von Pygame, entworfen für BCI (Brain-Computer Interface) Anwendungen im EEG-Kontext.
 
@@ -28,50 +28,9 @@ Das Projekt folgt einer klaren Struktur unter Verwendung bewährter Software-Des
 
 ### Architektur-Diagramm (Übersicht)
 
-Das folgende Diagramm zeigt die Initialisierung und die Verwaltung der Zustände durch die zentrale `GameApp`.
+Das folgende Diagramm zeigt die Initialisierung und die Verwaltung der Spielzustände durch die zentrale `GameApp`.
 
 ![Architecture Overview](https://mermaid.ink/svg/Zmxvd2NoYXJ0IFRECiAgICBjbGFzc0RlZiBhcHAgZmlsbDojZjlmLHN0cm9rZTojMzMzLHN0cm9rZS13aWR0aDoycHg7CiAgICBjbGFzc0RlZiBmYWN0b3J5IGZpbGw6I2ZmZCxzdHJva2U6IzMzMyxzdHJva2Utd2lkdGg6MnB4OwogICAgY2xhc3NEZWYgc3RhdGUgZmlsbDojYmRmLHN0cm9rZTojMzMzLHN0cm9rZS13aWR0aDoycHg7CgogICAgTWFpbltNYWluLnB5XSAtLS0tPnxjcmVhdGVzIGFuZCBydW5zfCBBcHBbR2FtZUFwcF06OjphcHAKICAgIEFwcCAtLS0tPnxtYW5hZ2VzfCBDdXJyZW50U3RhdGVbQ3VycmVudCBTdGF0ZV06OjpzdGF0ZQogICAgCiAgICBBcHAgLS4uLi0+fHVzZXN8IEZhY3RvcnlbU3RhdGVGYWN0b3J5XTo6OmZhY3RvcnkKICAgIAogICAgc3ViZ3JhcGggU3RhdGVzIFtBdmFpbGFibGUgU3RhdGVzXQogICAgICAgIGRpcmVjdGlvbiBMUgogICAgICAgIE1lbnVbTWVudVN0YXRlXTo6OnN0YXRlCiAgICAgICAgU2V0dGluZ3NbU2V0dGluZ3NTdGF0ZV06OjpzdGF0ZQogICAgICAgIEdhbWVbR2FtZVN0YXRlXTo6OnN0YXRlCiAgICAgICAgUXVpdFtRdWl0U3RhdGVdOjo6c3RhdGUKICAgIGVuZAogICAgCiAgICBGYWN0b3J5IC0uLi4tPnxpbnN0YW50aWF0ZXN8IE1lbnUKICAgIEZhY3RvcnkgLS4uLi0+fGluc3RhbnRpYXRlc3wgU2V0dGluZ3MKICAgIEZhY3RvcnkgLS4uLi0+fGluc3RhbnRpYXRlc3wgR2FtZQogICAgRmFjdG9yeSAtLi4uLT58aW5zdGFudGlhdGVzfCBRdWl0)
-
-<details>
-<summary><b>LaTeX Source (TikZ)</b></summary>
-
-![Architecture Overview (LaTeX/TikZ)](./docs/images/architecture_overview.png)
-
-```latex
-\begin{tikzpicture}[
-    node distance=1.5cm and 2.5cm,
-    font=\sffamily\small,
-    main_node/.style={rectangle, draw, thick, fill=white, minimum width=2.5cm, minimum height=0.8cm},
-    app_node/.style={rectangle, draw, thick, fill=magenta!20, minimum width=2.5cm, minimum height=0.8cm, rounded corners},
-    state_node/.style={rectangle, draw, thick, fill=blue!15, minimum width=2.5cm, minimum height=0.8cm, rounded corners},
-    factory_node/.style={rectangle, draw, thick, fill=yellow!20, minimum width=2.5cm, minimum height=0.8cm, rounded corners},
-    arrow/.style={-{Stealth[scale=1.2]}, thick},
-    dashed_arrow/.style={-{Stealth[scale=1.2]}, thick, dashed},
-    subgraph/.style={draw, dashed, gray, inner sep=0.5cm, rounded corners}
-]
-    \node[main_node] (main) {Main.py};
-    \node[app_node, below=of main] (app) {GameApp};
-    \node[state_node, below=of app] (current) {Current State};
-    \node[factory_node, right=of app] (factory) {StateFactory};
-    \node[state_node, below left=2cm and -1cm of factory] (menu) {MenuState};
-    \node[state_node, right=0.5cm of menu] (settings) {SettingsState};
-    \node[state_node, right=0.5cm of settings] (game) {GameState};
-    \node[state_node, right=0.5cm of game) (quit) {QuitState};
-    \begin{scope}[on background layer]
-        \node[subgraph, fit=(menu) (settings) (game) (quit), label={[anchor=north]above:Available States}] (states_box) {};
-    \end{scope}
-    \draw[arrow] (main) -- node[right] {creates and runs} (app);
-    \draw[arrow] (app) -- node[right] {manages} (current);
-    \draw[dashed_arrow] (app) -- node[above] {uses} (factory);
-    \draw[dashed_arrow] (factory.south) -- node[left, pos=0.2] {instantiates} (menu.north);
-    \draw[dashed_arrow] (factory.south) -- (settings.north);
-    \draw[dashed_arrow] (factory.south) -- (game.north);
-    \draw[dashed_arrow] (factory.south) -- (quit.north);
-\end{tikzpicture}
-```
-</details>
-
-
 
 
 

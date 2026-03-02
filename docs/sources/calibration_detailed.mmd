@@ -1,0 +1,58 @@
+flowchart TD
+    Start([Kalibrierung starten]) --> Phase1[Phase 1: RELAXED<br/>30 Sekunden]
+    
+    Phase1 --> Collect1[EEG-Daten sammeln<br/>Kanal 1 und Kanal 8<br/>250 Hz x 30s = 7500 Samples/Kanal]
+    
+    Collect1 --> Phase2[Phase 2: CONCENTRATED<br/>30 Sekunden<br/>Nutzer loest Mathe-Aufgaben]
+    
+    Phase2 --> Collect2[EEG-Daten sammeln<br/>Kanal 1 und Kanal 8<br/>250 Hz x 30s = 7500 Samples/Kanal]
+    
+    Collect2 --> Process[Signalverarbeitung starten]
+    
+    Process --> Filter[Schritt 1: Butterworth-Bandpass-Filter<br/>Ordnung 3, kausal lfilter]
+    Filter --> AlphaBand[Alpha-Band filtern: 8-12 Hz]
+    Filter --> BetaBand[Beta-Band filtern: 13-30 Hz]
+    
+    AlphaBand --> FFT1[Schritt 2: FFT berechnen]
+    BetaBand --> FFT2[Schritt 2: FFT berechnen]
+    
+    FFT1 --> Power1[Schritt 3: Spektralleistung<br/>Summe der FFT-Magnituden<br/>fuer Alpha-Band]
+    FFT2 --> Power2[Schritt 3: Spektralleistung<br/>Summe der FFT-Magnituden<br/>fuer Beta-Band]
+    
+    Power1 --> Ratio[Schritt 4: Verhaeltnis berechnen<br/>Ratio = Beta_Power / Alpha_Power<br/>fuer jeden Kanal]
+    Power2 --> Ratio
+    
+    Ratio --> RelRatios[Relaxed-Verhaeltnisse:<br/>Ch1_rel, Ch8_rel]
+    Ratio --> ConRatios[Concentrated-Verhaeltnisse:<br/>Ch1_con, Ch8_con]
+    
+    RelRatios --> Threshold1[Schritt 5: Schwellenwert Kanal 1<br/>th1 = Ch1_rel + Ch1_con / 2]
+    ConRatios --> Threshold1
+    
+    RelRatios --> Threshold8[Schritt 5: Schwellenwert Kanal 8<br/>th8 = Ch8_rel + Ch8_con / 2]
+    ConRatios --> Threshold8
+    
+    Threshold1 --> Dir1[Schritt 6: Richtung Kanal 1<br/>dir1 = +1 wenn Ch1_con > Ch1_rel<br/>dir1 = -1 sonst]
+    Threshold8 --> Dir8[Schritt 6: Richtung Kanal 8<br/>dir8 = +1 wenn Ch8_con > Ch8_rel<br/>dir8 = -1 sonst]
+    
+    Dir1 --> Margin1[Schritt 7: Sicherheitsmarge<br/>m1 = th1 x 0.15]
+    Dir8 --> Margin8[Schritt 7: Sicherheitsmarge<br/>m8 = th8 x 0.15]
+    
+    Margin1 --> Done([Kalibrierung abgeschlossen<br/>Rueckgabe: th1, dir1, m1, th8, dir8, m8])
+    Margin8 --> Done
+    
+    style Start fill:#9f9
+    style Done fill:#9f9
+    style Filter fill:#fcf
+    style AlphaBand fill:#fcf
+    style BetaBand fill:#fcf
+    style FFT1 fill:#fcf
+    style FFT2 fill:#fcf
+    style Power1 fill:#fcf
+    style Power2 fill:#fcf
+    style Ratio fill:#fcf
+    style Threshold1 fill:#6cf
+    style Threshold8 fill:#6cf
+    style Dir1 fill:#f96
+    style Dir8 fill:#f96
+    style Margin1 fill:#ff9
+    style Margin8 fill:#ff9
