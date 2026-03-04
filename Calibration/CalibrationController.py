@@ -73,7 +73,7 @@ class CalibrationController:
     def _handle_key_events(self, event):
         if self._model.phase == CalibrationPhase.FINISHED:
             self._running = False
-        if event.key == pygame.K_ESCAPE:
+        elif event.key == pygame.K_ESCAPE:
             self._abort = True
             self._running = False
 

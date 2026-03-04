@@ -42,7 +42,7 @@ class CalibrationView:
         # Real Start Button
         button_width, button_height = 200, 60
         self._start_button = pygame_gui.elements.UIButton(
-            pygame.Rect((self._width - button_width) // 2, self._height // 2 + 100, button_width, button_height),
+            pygame.Rect((self._width - button_width) // 2, self._height // 2 + 200, button_width, button_height),
             text="START",
             manager=self._manager,
             object_id="#StartButton"
@@ -82,7 +82,8 @@ class CalibrationView:
             "Zunächst wird eine kurze Kalibrierung durchgeführt, diese besteht aus zwei Phasen:",
             "1. Phase: 30s Entspannung (nichts Besonderes denken).",
             "2. Phase: 30s Konzentration (Kopfrechnen).",
-            "Folge den Hinweisen auf dem Bildschirm!"
+            "Folge den Hinweisen auf dem Bildschirm!",
+            "Hinweis: Mit ESC kann die Kalibrierung abgebrochen und das Programm frühzeitig beendet werden."
         ]
         
         for i, line in enumerate(lines):
@@ -108,7 +109,8 @@ class CalibrationView:
         self._draw_text(time_text, self._font_text, self._height * 3 // 4, color=self._COLOR_HIGHLIGHT)
 
     def _render_finished(self):
-        self._draw_text("Kalibrierung abgeschlossen", self._font_title, self._height // 3)
+        self._draw_text("Kalibrierung abgeschlossen.", self._font_title, self._height // 3)
+        self._draw_text("Drücke eine beliebige Taste zum Fortfahren.", self._font_text, self._height // 2)
         
         results = [
             # f"Th Ch1 (Front): {self._model.threshold_1:.2f} ({'Up' if self._model.dir_1 > 0 else 'Down'})",
