@@ -40,11 +40,11 @@ class GameModel:
         """Initializes game entities (players) for a new session."""
         self._entities = []
         self._entities.append(
-            EntityStateMachine(self, "Player_1", EntityTypesEnum.PLAYER, True, (100, 720), (200, 500), 10,
+            EntityStateMachine(self, "Player_1", EntityTypesEnum.PLAYER, True, (100, 720), (200, 500), 1,
                                SpriteSheetStruct.PlayerEntity, self._screen))
         if self._second_player:
             self._entities.append(
-                EntityStateMachine(self, "Player_2", EntityTypesEnum.PLAYER, True, (100, 320), (200, 500), 10,
+                EntityStateMachine(self, "Player_2", EntityTypesEnum.PLAYER, True, (100, 320), (200, 500), 1,
                                    SpriteSheetStruct.PlayerEntity, self._screen))
 
     def get_entities(self) -> list[EntityStateMachine]:
