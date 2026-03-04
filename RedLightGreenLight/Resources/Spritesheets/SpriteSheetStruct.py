@@ -15,7 +15,7 @@ Example:
 from RedLightGreenLight.States.Game.Entites.EntityStates.EntityStatesEnum import EntityStatesEnum
 
 PlayerEntity = {
-    EntityStatesEnum.IDLE:      ("RedLightGreenLight/Resources/Spritesheets/walk.png",          (0,0,300,515),  8, 8),
+    EntityStatesEnum.IDLE:      ("RedLightGreenLight/Resources/Spritesheets/idle.png",          (0,0,300,515),  8, 8),
     EntityStatesEnum.WALKING:   ("RedLightGreenLight/Resources/Spritesheets/walk.png",          (0,0,300,515),  8, 8),
     EntityStatesEnum.DEAD:      ("RedLightGreenLight/Resources/Spritesheets/explosion.png",     (0,0,341,341),  9, 3)
 }

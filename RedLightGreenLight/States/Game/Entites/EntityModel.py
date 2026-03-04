@@ -29,6 +29,14 @@ class EntityModel:
     def is_player(self) -> bool:
         return self._is_player
 
+    def get_name(self) -> str:
+        if self._is_player:
+            if self._entity_id == "Player_1":
+                return "Player 1"
+            elif self._entity_id == "Player_2":
+                return "Player 2"
+        return self._entity_id
+
     def move(self):
         self._position = (self._position[0] + self._movement_direction[0] * self._current_movement_speed, self._position[1] + self._movement_direction[1] * self._current_movement_speed)
 

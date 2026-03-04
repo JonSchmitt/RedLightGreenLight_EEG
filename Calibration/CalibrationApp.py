@@ -32,13 +32,13 @@ class CalibrationApp:
         Starts the calibration loop and returns the results once finished.
 
         Returns:
-            tuple: (threshold_1, dir_1, margin_1, threshold_8, dir_8, margin_8)
+            tuple: (threshold_ratio, margin_ratio, abort)
         """
-        self._controller.run()
+        abort = self._controller.run()
 
 
         m = self._model
-        results = (m.threshold_ratio, m.margin_ratio)
+        results = (m.threshold_ratio, m.margin_ratio, abort)
         
         print(f"Calibration Results -> Ratio Threshold: {results[0]:.4f}, Margin: {results[1]:.4f}")
 

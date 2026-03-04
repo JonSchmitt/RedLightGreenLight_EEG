@@ -34,15 +34,17 @@ class GameModel:
         self._is_game_paused = False
         self._is_game_over = False
 
+        self._player_width = 200
+
     def load_entities(self) -> None:
         """Initializes game entities (players) for a new session."""
         self._entities = []
         self._entities.append(
-            EntityStateMachine(self, "Player_1", EntityTypesEnum.PLAYER, True, (100, 720), (200, 500), 1,
+            EntityStateMachine(self, "Player_1", EntityTypesEnum.PLAYER, True, (100, 720), (200, 500), 10,
                                SpriteSheetStruct.PlayerEntity, self._screen))
         if self._second_player:
             self._entities.append(
-                EntityStateMachine(self, "Player_2", EntityTypesEnum.PLAYER, True, (100, 320), (200, 500), 1,
+                EntityStateMachine(self, "Player_2", EntityTypesEnum.PLAYER, True, (100, 320), (200, 500), 10,
                                    SpriteSheetStruct.PlayerEntity, self._screen))
 
     def get_entities(self) -> list[EntityStateMachine]:
@@ -83,6 +85,7 @@ class GameModel:
             if e_model.get_entity_type() == EntityTypesEnum.PLAYER: # Respawn Player(s)
                 e_model.reset_position()
                 e_model.set_dead(False)
+        self._current_winner = None
 
     def update_phase_info(self, game_state_phase: GamePhasesEnum) -> None:
         """
@@ -116,6 +119,11 @@ class GameModel:
             self._is_movement_kills_player = False
             self._is_game_paused = True
             self._is_game_over = False
+        elif game_state_phase == GamePhasesEnum.WINS:
+            self._is_movement_allowed = False
+            self._is_movement_kills_player = False
+            self._is_game_paused = False
+            self._is_game_over = False
 
     def is_movement_allowed(self) -> bool:
         """Returns True if movement is currently allowed."""
@@ -131,3 +139,15 @@ class GameModel:
 
     def is_game_over(self) -> bool:
         return self._is_game_over
+
+    def check_win_condition(self) -> bool:
+        for e in self._entities:
+            e_model = e.get_entity_model()
+            if e_model.get_entity_type() == EntityTypesEnum.PLAYER:
+                if e_model.get_position()[0] >= self._screen.get_width()-self._player_width:
+                    self._current_winner = e_model.get_name()
+                    return True
+        return False
+
+    def get_current_winner(self) -> str:
+        return self._current_winner

@@ -7,4 +7,5 @@ class GamePhasesEnum(Enum):
     GOS = "game_over"
     RES = "restart"
     PAU = "pause"
+    WINS = "win"
 

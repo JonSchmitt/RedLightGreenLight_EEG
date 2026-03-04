@@ -21,6 +21,7 @@ class CalibrationController:
         self._data_logger = DataLogger(session_type="calibration")
         
         self._running = True
+        self._abort = False
 
     def run(self):
         clock = pygame.time.Clock()
@@ -38,6 +39,8 @@ class CalibrationController:
                 self._handle_events()
                 self._update()
                 self._view.render(dt) # Pass dt for UI update
+
+            return self._abort
                 
         finally:
             # Important: Disconnect to release the device for the next process (GameApp)
@@ -57,7 +60,7 @@ class CalibrationController:
             if event.type == pygame_gui.UI_BUTTON_PRESSED:
                 self._handle_ui_events(event)
             if event.type == pygame.KEYDOWN:
-                self._handle_key_events()
+                self._handle_key_events(event)
 
     def _handle_quit_event(self):
         self._running = False
@@ -67,8 +70,11 @@ class CalibrationController:
             self._eeg_manager.set_mock_mode("relaxed")
             self._model.start_phase(CalibrationPhase.RELAXED)
 
-    def _handle_key_events(self):
+    def _handle_key_events(self, event):
         if self._model.phase == CalibrationPhase.FINISHED:
+            self._running = False
+        if event.key == pygame.K_ESCAPE:
+            self._abort = True
             self._running = False
 
     def _update(self):

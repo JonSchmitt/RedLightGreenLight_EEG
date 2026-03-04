@@ -1,5 +1,6 @@
 import os
 import csv
+import queue
 import time
 import threading
 from queue import Queue
@@ -62,10 +63,15 @@ class DataLogger:
     def _worker(self):
         """Background loop to write data from queue to CSV."""
         # Wait for first item to determine headers
-        first_item = self._queue.get()
-        if first_item is None: 
+        try:
+            first_item = self._queue.get(timeout=2)
+        except queue.Empty as e:
+            print("Can't log data as the data queue is empty. Supposedly this happened due to aborting the calibration prior to data collection.")
+            return
+
+        if first_item is None:
             return # Exit if stopped immediately
-            
+
         fieldnames = first_item.keys()
         
         try:

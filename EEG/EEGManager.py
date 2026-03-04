@@ -25,6 +25,7 @@ class EEGManager:
         self._data_thread = None
         self._sampling_rate = 250  # Unicorn default
         self._channels = 8  # EEG channels
+        self._serial_number = "UN-2023.03.11"
         
         # Buffer for latest samples
         self._latest_data = []
@@ -98,8 +99,8 @@ class EEGManager:
                 print("No Unicorn devices found.")
                 return False
             
-            self._device = UnicornPy.Unicorn("UN-2023.03.11")
-            print(f"Connected to Unicorn: UN-2023.03.11")
+            self._device = UnicornPy.Unicorn(self._serial_number)
+            print(f"Connected to Unicorn: {self._serial_number}")
             return True
         except Exception as e:
             print(f"Error connecting to Unicorn: {e}")

@@ -6,6 +6,8 @@ from RedLightGreenLight.States.Game.Entites.EntityModel import EntityModel
 from RedLightGreenLight.States.Game.Entites.EntityStates.EntityState import EntityState
 from RedLightGreenLight.States.Game.Entites.EntityStates.EntityStateFactory import EntityStateFactory
 from RedLightGreenLight.States.Game.GameModel import GameModel
+from RedLightGreenLight.States.Game.Entites.EntityStates.EntityStatesEnum import EntityStatesEnum
+
 
 
 class WalkingEntityState(EntityState):
@@ -14,6 +16,7 @@ class WalkingEntityState(EntityState):
 
     def enter(self, keys_pressed:list[list[KEY]], entity_model:EntityModel, game_model:GameModel):
         super().enter(keys_pressed,entity_model,game_model)
+        entity_model.set_state(EntityStatesEnum.WALKING)
         entity_model.set_movement_direction((1,0))
 
     def update(self, keys_pressed:list[list[KEY]], entity_model:EntityModel, game_model:GameModel) -> EntityState:
@@ -22,10 +25,11 @@ class WalkingEntityState(EntityState):
 
         if game_model.is_game_paused(): # while moving and game is paused
             return EntityStateFactory.create_idle_state()
+        
 
         entity_model.move()
         action = self._get_action(keys_pressed, entity_model.get_entity_id())
-        if action == Actions.IDLE:
+        if action == Actions.IDLE or not game_model.is_movement_allowed():
             return EntityStateFactory.create_idle_state()
         return EntityStateFactory.create_walking_state()
 

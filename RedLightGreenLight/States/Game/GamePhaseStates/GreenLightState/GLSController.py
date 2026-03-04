@@ -42,6 +42,9 @@ class GLSController:
         if game_model.get_all_players_dead():
             self._model.reset_time_in_phase()
             return GamePhaseStateFactory.create_game_over_state(self._view.get_screen(),self._settings_model,self._music_manager)
+        elif game_model.check_win_condition():
+            self._model.reset_time_in_phase()
+            return GamePhaseStateFactory.create_win_state(self._view.get_screen(),self._settings_model,self._music_manager)
         elif self._model.switch_phase():
             self._model.reset_time_in_phase()
             return GamePhaseStateFactory.create_red_light_state(self._view.get_screen(),self._settings_model,self._music_manager)

@@ -27,22 +27,27 @@ class Main:
         # 1. Calibration
         print("Starting EEG Calibration...")
         calibration = CalibrationApp()
-        th_ratio, margin_ratio = calibration.run()
+        th_ratio, margin_ratio, abort = calibration.run()
 
-        # 2. Setup Real-Time BCI
-        command_queue = Queue()
-        bci_process = RealTimeProcessor(th_ratio, margin_ratio, command_queue)
-        bci_process.start()
+        if not abort:
+            # 2. Setup Real-Time BCI
+            command_queue = Queue()
+            bci_process = RealTimeProcessor(th_ratio, margin_ratio, command_queue)
+            bci_process.start()
 
-        # 3. Game Start
-        try:
-            print(f"Starting Game with Ratio Threshold: {th_ratio:.4f}")
-            game = GameApp()
-            game.run(command_queue)
-        finally:
-            bci_process.stop()
-            bci_process.join(timeout=1.0)
-            pygame.quit()
+            # 3. Game Start
+            try:
+                print(f"Starting Game with Ratio Threshold: {th_ratio:.4f}")
+                game = GameApp()
+                game.run(command_queue)
+            finally:
+                bci_process.stop()
+                bci_process.join(timeout=1.0)
+                pygame.quit()
+
+        else:
+            print("Calibration aborted by user.")
+            print("Exiting Program...")
 
 
 if __name__ == "__main__":
